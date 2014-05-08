@@ -1,0 +1,24 @@
+{
+  "name": "organic-plasma",
+  "version": "0.0.1",
+  "description": "Implementation of [node-organic/Plasma] with improvements",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/outbounder/organic-plasma.git"
+  },
+  "author": "Boris Filipov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/outbounder/organic-plasma/issues"
+  },
+  "homepage": "https://github.com/outbounder/organic-plasma",
+  "dependencies": {
+    "organic": "~0.1.1",
+    "underscore": "~1.6.0",
+    "async": "~0.8.0"
+  }
+}
