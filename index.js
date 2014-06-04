@@ -74,28 +74,28 @@ module.exports.prototype.off = function(pattern, handler) {
 /*
   add support for plasma.emit("chemicalType", {chemicalProperty: value,...})
 */
-module.exports.prototype.emit = function(chemical) {
+module.exports.prototype.emit = function(chemical, callback) {
   if(typeof chemical == "string")
     chemical = {type: chemical}
   this.emitToRemoteSubscribers(chemical)
 
   for(var i = 0; i<this.listeners.length; i++) {
     if(deepEqual(this.listeners[i].pattern, chemical)) {
-      var aggregated = this.listeners[i].handler.call(this.listeners[i].context, chemical, noopCallback)
+      var aggregated = this.listeners[i].handler.call(this.listeners[i].context, chemical, callback || noopCallback)
       if(this.listeners[i].once) {
         this.listeners.splice(i, 1);
         i -= 1;
       }
-      if(aggregated == true) 
+      if(aggregated === true) 
         return
     } else
     if(deepEqual(this.listeners[i].pattern, chemical.type)) {
-      var aggregated = this.listeners[i].handler.call(this.listeners[i].context, chemical, noopCallback)
+      var aggregated = this.listeners[i].handler.call(this.listeners[i].context, chemical, callback || noopCallback)
       if(this.listeners[i].once) {
         this.listeners.splice(i, 1);
         i -= 1;
       }
-      if(aggregated == true)
+      if(aggregated === true)
         return
     }
   }
