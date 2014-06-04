@@ -23,12 +23,21 @@ var deepEqual = function(actual, expected) {
     return actual === expected
 }
 
+var isFilledArray = function(arr){
+  for(var i = 0; i<arr.length; i++)
+    if(arr[i] == undefined || typeof arr[i] == "undefined")
+      return false
+  return true
+}
+
+
 module.exports = function(){
   this.listeners = []
   this.remoteSubscribers = []
 }
 
 util.inherits(module.exports, Plasma);
+
 
 /*
   add support 
@@ -39,15 +48,17 @@ module.exports.prototype.on = function(pattern, handler, context, once) {
   if(Array.isArray(pattern)) {
     var chemicalsFound = []
     var firstFoundError = null
-    var multiHandler = function(c){
-      if(c instanceof Error && !firstFoundError) firstFoundError = c
-      chemicalsFound.push(c)
-      if(chemicalsFound.length == pattern.length) {
-        handler.call(context, firstFoundError || chemicalsFound)
+    var multiHandler = function(index){
+      return function(c){
+        if(c instanceof Error && !firstFoundError) firstFoundError = c
+        chemicalsFound[index] = c
+        if(isFilledArray(chemicalsFound) && chemicalsFound.length == pattern.length) {
+          handler.call(context, firstFoundError || chemicalsFound)
+        }
       }
     }
     for(var i = 0; i<pattern.length; i++)
-      this.on(pattern[i], multiHandler, context, once)
+      this.on(pattern[i], multiHandler(i), context, once)
   } else {
     this.listeners.push({
       pattern: pattern,
