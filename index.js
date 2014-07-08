@@ -118,6 +118,8 @@ module.exports.prototype.emitAndCollect = function(chemical, callback) {
     chemical = {type: chemical}
   this.emitToRemoteSubscribers(chemical)
 
+  var listenersToRemove = []
+
   async.each(this.listeners, function(listener, next){
     if(!deepEqual(listener.pattern, chemical)) {
       if(!deepEqual(listener.pattern, chemical.type))
@@ -125,11 +127,7 @@ module.exports.prototype.emitAndCollect = function(chemical, callback) {
     }
 
     // remove listener from list if added as 'once'
-    // hopefully async makes a copy of 'array' arg...
-    if(listener.once) {
-      self.listeners.splice(i, 1);
-      i -= 1;
-    }
+    if(listener.once) listenersToRemove.push(listener)
 
     // determine listener reaction format as 
     // sync or async base based on number of arguments
@@ -140,7 +138,12 @@ module.exports.prototype.emitAndCollect = function(chemical, callback) {
       listener.handler.call(listener.context, chemical)
       next()
     }
-  }, callback)
+  }, function(){
+    listenersToRemove.forEach(function(listener){
+      self.listeners.splice(self.listeners.indexOf(listener), 1)
+    })
+    callback && callback()
+  })
 }
 
 module.exports.prototype.pipe = function(dest) {
