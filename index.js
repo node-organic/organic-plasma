@@ -91,10 +91,11 @@ module.exports.prototype.emit = function(chemical, callback) {
   this.emitToRemoteSubscribers(chemical)
 
   var listenersCount = this.listeners.length
-  for(var i = 0; i<listenersCount; i++) {
-    if(deepEqual(this.listeners[i].pattern, chemical)) {
-      var aggregated = this.listeners[i].handler.call(this.listeners[i].context, chemical, callback || noopCallback)
-      if(this.listeners[i].once) {
+  for(var i = 0; i<listenersCount && i<this.listeners.length; i++) {
+    var listener = this.listeners[i]
+    if(deepEqual(listener.pattern, chemical)) {
+      var aggregated = listener.handler.call(listener.context, chemical, callback || noopCallback)
+      if(listener.once) {
         this.listeners.splice(i, 1);
         i -= 1;
         listenersCount -= 1;
@@ -102,9 +103,9 @@ module.exports.prototype.emit = function(chemical, callback) {
       if(aggregated === true) 
         return
     } else
-    if(deepEqual(this.listeners[i].pattern, chemical.type)) {
-      var aggregated = this.listeners[i].handler.call(this.listeners[i].context, chemical, callback || noopCallback)
-      if(this.listeners[i].once) {
+    if(deepEqual(listener.pattern, chemical.type)) {
+      var aggregated = listener.handler.call(listener.context, chemical, callback || noopCallback)
+      if(listener.once) {
         this.listeners.splice(i, 1);
         i -= 1;
         listenersCount -= 1;
