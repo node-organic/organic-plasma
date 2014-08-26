@@ -1,7 +1,7 @@
 {
   "name": "organic-plasma",
-  "version": "0.0.5",
-  "description": "Implementation of [node-organic/Plasma] with improvements",
+  "version": "0.0.6",
+  "description": "Implementation of node-organic/Plasma",
   "main": "index.js",
   "scripts": {
     "test": "jasmine-node ./tests"
@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/outbounder/organic-plasma",
   "dependencies": {
-    "organic": "~0.1.1",
+    "organic": "~0.2.0",
     "underscore": "~1.6.0",
     "async": "~0.8.0"
   }
