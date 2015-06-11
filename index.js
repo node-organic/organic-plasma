@@ -94,22 +94,22 @@ module.exports.prototype.emit = function(chemical, callback) {
   for(var i = 0; i<listenersCount && i<this.listeners.length; i++) {
     var listener = this.listeners[i]
     if(deepEqual(listener.pattern, chemical)) {
-      var aggregated = listener.handler.call(listener.context, chemical, callback || noopCallback)
       if(listener.once) {
         this.listeners.splice(i, 1);
         i -= 1;
         listenersCount -= 1;
       }
+      var aggregated = listener.handler.call(listener.context, chemical, callback || noopCallback)
       if(aggregated === true) 
         return
     } else
     if(deepEqual(listener.pattern, chemical.type)) {
-      var aggregated = listener.handler.call(listener.context, chemical, callback || noopCallback)
       if(listener.once) {
         this.listeners.splice(i, 1);
         i -= 1;
         listenersCount -= 1;
       }
+      var aggregated = listener.handler.call(listener.context, chemical, callback || noopCallback)
       if(aggregated === true)
         return
     }
