@@ -18,7 +18,10 @@
   "homepage": "https://github.com/outbounder/organic-plasma",
   "dependencies": {
     "organic": "~0.2.0",
-    "underscore": "~1.6.0",
-    "async": "~0.8.0"
-  }
+    "underscore": "~1.6.0"
+  },
+  "devDependencies": {
+    "jasmine-node": "^1.14.5"
+  },
+  "engines" : { "node" : ">=4.2.3" }
 }

@@ -1,10 +1,8 @@
 var Plasma = require("organic").Plasma
 var util = require("util")
 var _ = require("underscore")
-var async = require("async")
-var noopCallback = function(){}
 
-var deepEqual = function(actual, expected) {
+var deepEqual = function (actual, expected) {
   if(Array.isArray(actual)) {
     if(actual.length != expected.length)
       return false
@@ -23,7 +21,7 @@ var deepEqual = function(actual, expected) {
     return actual === expected
 }
 
-var isFilledArray = function(arr){
+var isFilledArray = function (arr) {
   for(var i = 0; i<arr.length; i++)
     if(arr[i] == undefined || typeof arr[i] == "undefined")
       return false
@@ -34,32 +32,30 @@ var isFilledArray = function(arr){
 module.exports = function(){
   this.listeners = []
   this.remoteSubscribers = []
+  this.storedChemicals = []
 }
 
-util.inherits(module.exports, Plasma);
+util.inherits(module.exports, Plasma)
 
-
-/*
-  add support 
-    * plasma.on(["checmialType1", "chemicalType2"], handler)
-    * handler = function(err || chemicalsFound){}
-*/
-module.exports.prototype.on = function(pattern, handler, context, once) {
+module.exports.prototype.on = function (pattern, handler, context, once) {
   if(Array.isArray(pattern)) {
-    var chemicalsFound = []
-    var firstFoundError = null
-    var multiHandler = function(index){
-      return function(c){
-        if(c instanceof Error && !firstFoundError) firstFoundError = c
-        chemicalsFound[index] = c
-        if(isFilledArray(chemicalsFound) && chemicalsFound.length == pattern.length) {
-          handler.call(context, firstFoundError || chemicalsFound)
-        }
+    this.onAll(pattern, handler, context, once)
+  } else {
+    if (typeof pattern == "string")
+      pattern = {type: pattern}
+
+    var handlerExecuted = false
+    for(var i = 0; i < this.storedChemicals.length; i++) {
+      var chemical = this.storedChemicals[i]
+      if(deepEqual(pattern, chemical)) {
+        handlerExecuted = true
+        handler.call(context, chemical)
       }
     }
-    for(var i = 0; i<pattern.length; i++)
-      this.on(pattern[i], multiHandler(i), context, once)
-  } else {
+
+    if (handlerExecuted && once)
+      return
+
     this.listeners.push({
       pattern: pattern,
       handler: handler,
@@ -69,28 +65,41 @@ module.exports.prototype.on = function(pattern, handler, context, once) {
   }
 }
 
-module.exports.prototype.once = function(pattern, handler, context) {
+module.exports.prototype.onAll = function (patterns, handler, context, once) {
+  var chemicalsFound = []
+  var createSingleHandler = function(index){
+    return function(c){
+      chemicalsFound[index] = c
+      if(isFilledArray(chemicalsFound) && chemicalsFound.length == patterns.length) {
+        handler.apply(context, chemicalsFound)
+      }
+    }
+  }
+  for(var i = 0; i<patterns.length; i++) {
+    this.on(patterns[i], createSingleHandler(i), context, once)
+  }
+}
+
+module.exports.prototype.once = function (pattern, handler, context) {
   this.on(pattern, handler, context, true)
 }
 
-module.exports.prototype.off = function(pattern, handler) {
+module.exports.prototype.off = function (pattern, handler) {
   for(var i = 0; i<this.listeners.length; i++) {
     if(deepEqual(this.listeners[i].pattern, pattern) && this.listeners[i].handler == handler) {
-      this.listeners.splice(i, 1);
+      this.listeners.splice(i, 1)
       i -= 1
     }
   }
 }
 
-/*
-  add support for plasma.emit("chemicalType", {chemicalProperty: value,...})
-*/
-module.exports.prototype.emit = function(chemical, callback) {
+module.exports.prototype.emit = function (chemical, callback) {
   if(typeof chemical == "string")
     chemical = {type: chemical}
   this.emitToRemoteSubscribers(chemical)
 
   var listenersCount = this.listeners.length
+  var promises = []
   for(var i = 0; i<listenersCount && i<this.listeners.length; i++) {
     var listener = this.listeners[i]
     if(deepEqual(listener.pattern, chemical)) {
@@ -99,61 +108,74 @@ module.exports.prototype.emit = function(chemical, callback) {
         i -= 1;
         listenersCount -= 1;
       }
-      var aggregated = listener.handler.call(listener.context, chemical, callback || noopCallback)
-      if(aggregated === true) 
-        return
-    } else
-    if(deepEqual(listener.pattern, chemical.type)) {
-      if(listener.once) {
-        this.listeners.splice(i, 1);
-        i -= 1;
-        listenersCount -= 1;
+
+      var p
+      var handlerCallback = callback
+      if (!handlerCallback && listener.handler.length === 2) {
+        // requested promise - hitting -> callback feedback mode
+        var resolveCallback
+        var rejectCallback
+        p = new Promise(function (resolve, reject) {
+          resolveCallback = resolve
+          rejectCallback = reject
+        })
+        handlerCallback = function (err, result) {
+          if (err) return rejectCallback(err)
+          resolveCallback(result)
+        }
+        promises.push(p)
       }
-      var aggregated = listener.handler.call(listener.context, chemical, callback || noopCallback)
-      if(aggregated === true)
-        return
+
+      var aggregated = listener.handler.call(listener.context, chemical, handlerCallback)
+      if (aggregated === true) return // halt chemical transfer, it has been aggregated
+
+      if (aggregated instanceof Promise && listener.handler.length === 1 && callback) {
+        // requested callback - hitting -> promise feedback mode
+        aggregated.then(function (data) {
+          callback(null, data)
+        }).catch(function (err) {
+          callback(err)
+        })
+      }
+
+      if (aggregated instanceof Promise) {
+        promises.push(aggregated)
+      }
+    }
+  }
+  if (promises.length === 0) return
+  if (promises.length === 1) return promises[0]
+  return Promise.all(promises)
+}
+
+module.exports.prototype.store = function (chemical, callback) {
+  this.storedChemicals.push(chemical)
+  this.emit(chemical, callback)
+}
+
+module.exports.prototype.trash = function (chemical) {
+  for(var i = 0; i < this.storedChemicals.length; i++) {
+    if (this.storedChemicals[i] === chemical) {
+      this.storedChemicals[i].splice(i, 1)
+      i -= 1
     }
   }
 }
 
-module.exports.prototype.emitAndCollect = function(chemical, callback) {
-  var self = this
-  if(typeof chemical == "string")
-    chemical = {type: chemical}
-  this.emitToRemoteSubscribers(chemical)
-
-  var listenersToRemove = []
-
-  async.each(this.listeners, function(listener, next){
-    if(!deepEqual(listener.pattern, chemical)) {
-      if(!deepEqual(listener.pattern, chemical.type))
-        return next()
-    }
-
-    // remove listener from list if added as 'once'
-    if(listener.once) listenersToRemove.push(listener)
-
-    // determine listener reaction format as 
-    // sync or async base based on number of arguments
-    
-    if(listener.handler.length == 2) { // async
-      listener.handler.call(listener.context, chemical, next)
-    } else { // sync
-      listener.handler.call(listener.context, chemical)
-      next()
-    }
-  }, function(){
-    listenersToRemove.forEach(function(listener){
-      self.listeners.splice(self.listeners.indexOf(listener), 1)
-    })
-    callback && callback()
-  })
-}
 
 module.exports.prototype.pipe = function(dest) {
   this.remoteSubscribers.push({
     target: dest
   })
+}
+
+module.exports.prototype.unpipe = function(dest) {
+  for (var i = 0; i<this.remoteSubscribers.length; i++) {
+    if (this.remoteSubscribers[i].target === dest) {
+      this.remoteSubscribers.splice(i, 1)
+      i -= 1
+    }
+  }
 }
 
 module.exports.prototype.excludeUnseriazableNodes = function(obj) {
