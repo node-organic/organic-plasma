@@ -19,7 +19,25 @@ describe("plasma on / react feature", function(){
       return Promise.resolve({success: true})
     })
     instance.react({type: "c1"}).then(function (data) {
-      expect(data[0].success).toBe(true)
+      expect(data.success).toBe(true)
+      done()
+    })
+  })
+  it("works with promises flattened", function(done){
+    var instance  = new Plasma()
+    instance.on("c1", function(c){
+      expect(c.type).toBe("c1")
+      c.success1 = true
+      return Promise.resolve(c)
+    })
+    instance.on("c1", function(c){
+      expect(c.type).toBe("c1")
+      c.success2 = true
+      return Promise.resolve(c)
+    })
+    instance.react({type: "c1"}).then(function (data) {
+      expect(data.success1).toBe(true)
+      expect(data.success2).toBe(true)
       done()
     })
   })
@@ -30,7 +48,7 @@ describe("plasma on / react feature", function(){
       callback(null, {success: true})
     })
     instance.react({type: "c1"}).then(function (data) {
-      expect(data[0].success).toBe(true)
+      expect(data.success).toBe(true)
       done()
     })
   })
@@ -59,8 +77,8 @@ describe("plasma on / react feature", function(){
       return instance.react(c)
     })
     instance.react({type: "c1"}, function (err, data) {
-      expect(data[0].success).toBe(true)
-      expect(data[0].success2).toBe(true)
+      expect(data.success).toBe(true)
+      expect(data.success2).toBe(true)
       done()
     })
   })
@@ -78,8 +96,8 @@ describe("plasma on / react feature", function(){
       instance.react(c, callback)
     })
     instance.react({type: "c1"}).then(function (data) {
-      expect(data[0].success).toBe(true)
-      expect(data[0].success2).toBe(true)
+      expect(data.success).toBe(true)
+      expect(data.success2).toBe(true)
       done()
     })
   })

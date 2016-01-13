@@ -136,7 +136,7 @@ module.exports.prototype.react = function (chemical, callback) {
   this.notifySubscribers(chemical)
 
   var listenersCount = this.listeners.length
-  var promises = []
+  var promise
   for(var i = 0; i<listenersCount && i<this.listeners.length; i++) {
     var listener = this.listeners[i]
     if(utils.deepEqual(listener.pattern, chemical)) {
@@ -160,7 +160,11 @@ module.exports.prototype.react = function (chemical, callback) {
           if (err) return rejectCallback(err)
           resolveCallback(result)
         }
-        promises.push(p)
+        if (!promise) {
+          promise = Promise.resolve(p)
+        } else {
+          promise = promise.then(p)
+        }
       }
 
       var aggregated = listener.handler.call(listener.context, chemical, handlerCallback)
@@ -176,10 +180,14 @@ module.exports.prototype.react = function (chemical, callback) {
       }
 
       if (aggregated instanceof Promise) {
-        promises.push(aggregated)
+        if (!promise) {
+          promise = Promise.resolve(aggregated)
+        } else {
+          promise = promise.then(aggregated)
+        }
       }
     }
   }
 
-  return Promise.all(promises)
+  return promise
 }

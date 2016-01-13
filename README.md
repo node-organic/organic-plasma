@@ -50,7 +50,7 @@ Registers a function to be triggered when chemical emitted in plasma matches giv
 ### `plasma.once(pattern, function (c){} [, context])`
 
 The same as `plasma.on(pattern, function reaction (c){})` but will trigger the function only once.
-**Supports feedback via callback or Promise** 
+**Supports feedback via callback or Promise**
 
 ### `plasma.on([p1, p2], function (c1, c2){} [, context])`
 
@@ -118,8 +118,6 @@ The modes are supported separately or mixed.
 #### Promises mode
 
 ```
-plasma.pipe(function (c) {})
-
 plasma.on(pattern, function (c) {
   return Promise
 })
@@ -135,8 +133,6 @@ plasma.react(c)
 #### Callbacks mode
 
 ```
-plasma.pipe(function (c) {})
-
 plasma.on(pattern, function (c, callback) {
   callback(err, data)
 })
