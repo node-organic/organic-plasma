@@ -2,77 +2,92 @@
 
 Implementation of [node-organic/Plasma v1.0.0](https://github.com/VarnaLab/node-organic/blob/master/docs/Plasma.md).
 
-# API
+## Public API
 
-## `plasma.emit(c)`
+### `plasma.emit(c)`
 
 Immediatelly triggers any reactions matching given `c` chemical.
 
-### `c` argument
+* `c` argument
+  * as `String` equals to `{ type: String, ... }` Chemical
+  * as `Object` equals to Chemical
 
-* as `String` equals to `{ type: String, ... }` Chemical
-* as `Object` equals to Chemical
-
-## `plasma.store(c)`
+### `plasma.store(c)`
 
 Does the same as `plasma.emit` but also triggers any
 reactions registered in the future using `plasma.on`
 
-## `plasma.on(pattern, function(c){})`
+### `plasma.react(c, callback)`
+
+Immediatelly triggers any reactions matching given `c` chemical and provides feedback support via callbacks
+
+* `c` argument
+  * as `String` equals to `{ type: String, ... }` Chemical
+  * as `Object` equals to Chemical
+* `callback` argument - `function (err, result) {}`
+
+### `plasma.react(c)`
+
+Immediatelly triggers any reactions matching given `c` chemical and provides feedback support via Promise
+
+* `c` argument
+  * as `String` equals to `{ type: String, ... }` Chemical
+  * as `Object` equals to Chemical
+* `returns` Promise
+
+### `plasma.on(pattern, function (c){} [, context])`
 
 Registers a function to be triggered when chemical emitted in plasma matches given pattern.
+**Supports feedback via callback or Promise**
 
-### `pattern` argument
+* `pattern` argument
+  * as `String` matching `Chemical.type` property
+  * as `Object` matching one or many properties of `Chemical`
+* `c` argument
+  * `Object` Chemical matching `pattern`
+* `context` optional argument - will be used to invoke function reaction within context
 
-* as `Object` matching one or many properties of `Chemical`
-* as `String` matching `Chemical.type` property
+### `plasma.once(pattern, function (c){} [, context])`
 
-### `c` argument
+The same as `plasma.on(pattern, function reaction (c){})` but will trigger the function only once.
+**Supports feedback via callback or Promise** 
 
-* `Object` Chemical matching `pattern`
-
-## `plasma.once(pattern, function(c1){})`
-
-The same as `plasma.on(pattern, function(c){})` but will trigger the function only once.
-
-## `plasma.on([pattern1, pattern2], function(c1, c2){})`
+### `plasma.on([p1, p2], function (c1, c2){} [, context])`
 
 Registers a function to be triggered when all chemicals emitted in plasma have been matched.
 
-### `pattern` arguments
+* `p` array argument
+  * having elements `String` matching `Chemical.type` property
+  * having elements `Object` matching one or many properties of `Chemical`
+* `c` arguments
+  * `Object` Chemical matching `pattern` args maintaining their index order
+* `context` optional argument - will be used to invoke function reaction within context
 
-* as `Object` matching one or many properties of `Chemical`
-* as `String` matching `Chemical.type` property
+### `plasma.once([p1, p2], function (c1, c2) {} [, context])`
 
-### `c` arguments
+The same as `plasma.on([p1, p2], function(c1, c2){})` but will trigger the function only once.
 
-* `Object` Chemical matching `pattern` args maintaining their index order
-
-## `plasma.once([pattern1, pattern2], function(c1, c2){})`
-
-The same as `plasma.on([pattern1, pattern2], function(c1, c2){})` but will trigger the function only once.
-
-## `plasma.off(pattern, function)`
+### `plasma.off(pattern, function)`
 
 Unregisteres previously registered chemical reaction functions via `plasma.on` or `plasma.once`
 
-## `plasma.trash(c)`
+### `plasma.trash(c)`
 
 Removes previously stored chemical via `plasma.store`. It does removal by reference and won't throw exception if given chemical is not found in plasma's store.
 
-## `plasma.pipe(function(c){})`
+### `plasma.pipe(function(c){})`
 
 Method which will invoke function per any chemical been emitted or stored in plasma.
 
-## `plasma.unpipe(function(c){})`
+### `plasma.unpipe(function(c){})`
 
 Stops invoking given function previously used as argument of `plasma.pipe`
 
-# Features
+## Features
 
 Current implementation of organic plasma interface has the following addon features designed for ease in daily development process.
 
-## chemical aggregation
+### chemical aggregation
 
 ```
 plasma.on('c1', function reaction1 () {
@@ -84,7 +99,7 @@ plasma.on('c1', function reaction2 () {
 plasma.emit('c1')
 ```
 
-## optional usage of arguments
+### optional usage of arguments
 
 Invoking **either**:
 
@@ -96,11 +111,11 @@ triggers **all** the following:
 * `plasma.on('ready', function(c){ c.type === 'ready' })`
 * `plasma.on({type: 'ready'}, function(c){ c.type === 'ready' })`
 
-## feedback support
+### feedback support
 
 The modes are supported separately or mixed.
 
-### Promises mode
+#### Promises mode
 
 ```
 plasma.pipe(function (c) {})
@@ -112,23 +127,12 @@ plasma.once(pattern, function (c) {
   return Promise
 })
 
-plasma.on([pattern1, pattern2], function (c1, c2) {
-  return Promise
-})
-plasma.once([pattern1, pattern2], function (c1, c2) {
-  return Promise
-})
-
-plasma.emit(c)
-  .then(function (data) {})
-  .catch(function (err) {})
-
-plasma.store(c)
-  .then(function (data) {})
+plasma.react(c)
+  .then(function (results) {})
   .catch(function (err) {})
 ```
 
-### Callbacks mode
+#### Callbacks mode
 
 ```
 plasma.pipe(function (c) {})
@@ -140,12 +144,5 @@ plasma.once(pattern, function (c, callback) {
   callback(err, data)
 })
 
-plasma.on([pattern1, pattern2], function (c1, c2) {
-})
-plasma.once([pattern1, pattern2], function (c1, c2) {
-})
-
-plasma.emit(c, function callback(err, data) {})
-
-plasma.store(c, function callback(err, data) {})
+plasma.react(c, function callback(err, data) {})
 ```

@@ -7,9 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - `plasma.on` - supports feedback (promises || callbacks)
 - `plasma.on(array)` - doesn't support feedback (callback || promises)
-- `plasma.emit` - supports feedback (promises || callbacks)
+- `plasma.emit` - doesn't support feedback (callback || promises)
 
 ### Added
+- `plasma.react` - emit with feedback support
 - `plasma.store`
 - `plasma.trash`
 - `plasma.unpipe`
