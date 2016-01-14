@@ -80,10 +80,9 @@ module.exports.prototype.trash = function (chemical) {
   }
 }
 
-module.exports.prototype.pipe = function (dest, transformation) {
+module.exports.prototype.pipe = function (dest) {
   this.remoteSubscribers.push({
-    target: dest,
-    transformation: transformation
+    target: dest
   })
 }
 
@@ -100,10 +99,7 @@ module.exports.prototype.notifySubscribers = function (chemical) {
   for(var i = 0; i<this.remoteSubscribers.length; i++) {
     var s = this.remoteSubscribers[i]
     chemical = _.extend({}, chemical)
-    if(s.transformation)
-      chemical = s.transformation(chemical)
-    if(typeof s.target == "function")
-      s.target(utils.excludeUnseriazableNodes(chemical))
+    s.target(chemical)
   }
 }
 
