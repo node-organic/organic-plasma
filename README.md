@@ -1,39 +1,98 @@
-# Plasma
+# Plasma v1.0.0
 
-Implementation of [node-organic/Plasma](https://github.com/VarnaLab/node-organic/blob/master/docs/Plasma.md)
+Implementation of [node-organic/Plasma v1.0.0](https://github.com/VarnaLab/node-organic/blob/master/docs/Plasma.md).
 
-# public api
+## Public API
 
-### `plasma.on(chemicalPattern, handler [, context, once])`
+### plasma.emit(c)
 
-Registers `handler` as ReactionFn matching given `chemicalPattern`.
+Immediatelly triggers any reactions matching given `c` chemical.
 
-* `chemicalPattern`: Object || String || Array[ Object || String ] - the pattern used to match when handler should be invoked with emitted chemical.
-* `handler`: ReactionFn - a handler function in form of `function(c [, callback])` which will be invoked.
-* `context`: Object - optional, the context which will be used to invoke `handler`.
-* `once`: Boolen - optional, by default is having value of `false`.
+___arguments___
+* `c` - Emitted chemical
+  * as `String` equals to `{ type: String, ... }` Chemical
+  * as `Object` equals to Chemical
 
-### `plasma.once(chemicalPattern, handler [, context])`
+### plasma.store(c)
 
-Same as `plasma.on` however the `handler` will be invoked only once per chemical matching given `chemicalPattern`.
+Does the same as `plasma.emit` but also triggers any
+reactions registered in the future using `plasma.on`
 
-### `plasma.emit(chemical [, callback])`
+### plasma.on(pattern, function (c){} [, context])
 
-Emits `chemical` into plasma instance by invoking all matching ReactionFn handlers in parallel starting in order of their registration. In case a `handler` returns non-falsy value, the emit loop cycle is terminated and no other handlers are invoked.
+Registers a function to be triggered when chemical emitted in plasma matches given pattern.
 
-* `chemical`: String || Object - if String value is provided it is transformed to `{"type": chemical}` object.
-* `callback`: ReactionFn's callback - optional `function(err, chemicalResult)`
+___arguments___
+* `pattern` - matches emitted chemicals
+  * as `String` matching `Chemical.type` property
+  * as `Object` matching one or many properties of `Chemical`
+* `c` - `Object` Chemical matching `pattern`
+* `context` *optional* - will be used to invoke for function's context
 
-### `plasma.emitAndCollect(chemical, callback)`
+### plasma.once(pattern, function (c){} [, context])
 
-Emits `chemical` into plasma instance by invoking all matching ReactionFn handlers in asynchronious order.
-All results provided by handlers via their ReactionFn's callback are collected and then `callback` is invoked.
+The same as `plasma.on(pattern, function reaction (c){})` but will trigger the function only once.
 
-* `chemical`: String || Object - if String value is provided it is transformed to `{"type": chemical}` object.
-* `callback`: ReactionFn's callback - optional `function(err, chemicalResult)`. Note that `chemicalResult` is Array when using `emitAndCollect` method.
+### plasma.on([p1, p2, ...], function (c1, c2, ...){} [, context])
 
-### `plasma.pipe(dest)`
+Registers a function to be triggered when all chemicals emitted in plasma have been matched.
 
-Registers `dest` function as subscriber for all chemicals been emitted through plasma.
+___arguments___
+* `p` - array
+  * having elements `String` matching `Chemical.type` property
+  * having elements `Object` matching one or many properties of `Chemical`
+* `c` - array
+  * `Object` Chemicals matching `p` array maintaining their index order
+* `context` *optional* - will be used to invoke for function's context
 
-* `dest`: `function(chemical)` - will be called per every chemical emitted in plasma.
+### plasma.once([p1, p2], function (c1, c2) {} [, context])
+
+The same as `plasma.on([p1, p2], function(c1, c2){})` but will trigger the function only once.
+
+### plasma.off(pattern, function)
+
+Unregisters chemical reaction functions, the opposite of `plasma.on` or `plasma.once`.
+
+### plasma.trash(c)
+
+Removes previously stored chemical via `plasma.store`. It does removal by reference and won't throw exception if given chemical is not found in plasma's store.
+
+### plasma.pipe(function(c){})
+
+Method which will invoke function per any chemical been emitted or stored in plasma.
+
+### plasma.unpipe(function(c){})
+
+Stops invoking given function previously used for `plasma.pipe`
+
+## Features
+
+Current implementation of organic plasma interface has the following addon features designed for ease in daily development process.
+
+### chemical aggregation
+
+```
+plasma.on('c1', function reaction1 () {
+  return true
+})
+plasma.on('c1', function reaction2 () {
+  // won't be reached, reaction1 aggregated the chemical
+})
+plasma.emit('c1')
+```
+
+### optional usage of arguments
+
+Invoking **either**:
+
+* `plasma.emit('ready')`
+* `plasma.emit({type: 'ready'})`
+
+triggers **all** the following:
+
+* `plasma.on('ready', function(c){ c.type === 'ready' })`
+* `plasma.on({type: 'ready'}, function(c){ c.type === 'ready' })`
+
+### feedback support
+
+* [organic-plasma-feedback](https://github.com/outbounder/organic-plasma-feedback)
