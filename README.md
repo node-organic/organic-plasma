@@ -17,28 +17,9 @@ Immediatelly triggers any reactions matching given `c` chemical.
 Does the same as `plasma.emit` but also triggers any
 reactions registered in the future using `plasma.on`
 
-### `plasma.react(c, callback)`
-
-Immediatelly triggers any reactions matching given `c` chemical and provides feedback support via callbacks
-
-* `c` argument
-  * as `String` equals to `{ type: String, ... }` Chemical
-  * as `Object` equals to Chemical
-* `callback` argument - `function (err, result) {}`
-
-### `plasma.react(c)`
-
-Immediatelly triggers any reactions matching given `c` chemical and provides feedback support via Promise
-
-* `c` argument
-  * as `String` equals to `{ type: String, ... }` Chemical
-  * as `Object` equals to Chemical
-* `returns` Promise
-
 ### `plasma.on(pattern, function (c){} [, context])`
 
 Registers a function to be triggered when chemical emitted in plasma matches given pattern.
-**Supports feedback via callback or Promise**
 
 * `pattern` argument
   * as `String` matching `Chemical.type` property
@@ -50,7 +31,6 @@ Registers a function to be triggered when chemical emitted in plasma matches giv
 ### `plasma.once(pattern, function (c){} [, context])`
 
 The same as `plasma.on(pattern, function reaction (c){})` but will trigger the function only once.
-**Supports feedback via callback or Promise**
 
 ### `plasma.on([p1, p2], function (c1, c2){} [, context])`
 
@@ -110,35 +90,3 @@ triggers **all** the following:
 
 * `plasma.on('ready', function(c){ c.type === 'ready' })`
 * `plasma.on({type: 'ready'}, function(c){ c.type === 'ready' })`
-
-### feedback support
-
-The modes are supported separately or mixed.
-
-#### Promises mode
-
-```
-plasma.on(pattern, function (c) {
-  return Promise
-})
-plasma.once(pattern, function (c) {
-  return Promise
-})
-
-plasma.react(c)
-  .then(function (results) {})
-  .catch(function (err) {})
-```
-
-#### Callbacks mode
-
-```
-plasma.on(pattern, function (c, callback) {
-  callback(err, data)
-})
-plasma.once(pattern, function (c, callback) {
-  callback(err, data)
-})
-
-plasma.react(c, function callback(err, data) {})
-```
