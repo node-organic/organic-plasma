@@ -2,7 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.0.0]
+## [1.0.1] - 2016-02-17
+
+### Fixed
+- `plasma.pipe`
+
+
+## [1.0.0] - 2016-01-14
 
 **The release contains breaking changes towards v0.0.7.**
 Upgrade path requires `organic-plasma-feedback` decoration to be applied on v1.0.0 so that v0.0.7 features are 100% covered.

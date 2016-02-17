@@ -98,7 +98,9 @@ module.exports.prototype.unpipe = function (dest) {
 module.exports.prototype.notifySubscribers = function (chemical) {
   for(var i = 0; i<this.remoteSubscribers.length; i++) {
     var s = this.remoteSubscribers[i]
-    chemical = _.extend({}, chemical)
+    var r = {}
+    for (var key in chemical)
+      r[key] = chemical[key]
     s.target(chemical)
   }
 }
