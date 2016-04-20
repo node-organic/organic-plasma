@@ -18,6 +18,10 @@ ___arguments___
 Does the same as `plasma.emit` but also triggers any
 reactions registered in the future using `plasma.on`
 
+### plasma.has(pattern) : boolean
+
+Checks synchroniously for stored chemicals by given pattern.
+
 ### plasma.on(pattern, function (c){} [, context])
 
 Registers a function to be triggered when chemical emitted in plasma matches given pattern.

@@ -73,6 +73,16 @@ module.exports.prototype.store = function (chemical) {
   this.emit(chemical)
 }
 
+module.exports.prototype.has = function (pattern) {
+  for(var i = 0; this.storedChemicals.length; i++) {
+    var chemical = this.storedChemicals[i]
+    if (this.utils.deepEqual(pattern, chemical)) {
+      return true
+    }
+  }
+  return false
+}
+
 module.exports.prototype.trash = function (chemical) {
   for(var i = 0; i < this.storedChemicals.length; i++) {
     if (this.storedChemicals[i] === chemical) {
