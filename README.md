@@ -96,3 +96,7 @@ triggers **all** the following:
 ### feedback support
 
 * [organic-plasma-feedback](https://github.com/outbounder/organic-plasma-feedback)
+
+### custom pattern <-> chemical match algoritms
+
+* override `plasma.utils.deepEqual(pattern, chemical)`

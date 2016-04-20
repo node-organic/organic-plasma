@@ -6,6 +6,7 @@ module.exports = function(){
   this.listeners = []
   this.remoteSubscribers = []
   this.storedChemicals = []
+  this.utils = utils
 }
 
 util.inherits(module.exports, Plasma)
@@ -20,7 +21,7 @@ module.exports.prototype.on = function (pattern, handler, context, once) {
     var handlerExecuted = false
     for(var i = 0; i < this.storedChemicals.length; i++) {
       var chemical = this.storedChemicals[i]
-      if(utils.deepEqual(pattern, chemical)) {
+      if(this.utils.deepEqual(pattern, chemical)) {
         handlerExecuted = true
         handler.call(context, chemical)
       }
@@ -39,11 +40,12 @@ module.exports.prototype.on = function (pattern, handler, context, once) {
 }
 
 module.exports.prototype.onAll = function (patterns, handler, context, once) {
+  var self = this
   var chemicalsFound = []
   var createSingleHandler = function(index){
     return function(c){
       chemicalsFound[index] = c
-      if(utils.isFilledArray(chemicalsFound) && chemicalsFound.length == patterns.length) {
+      if(self.utils.isFilledArray(chemicalsFound) && chemicalsFound.length == patterns.length) {
         handler.apply(context, chemicalsFound)
       }
     }
@@ -59,7 +61,7 @@ module.exports.prototype.once = function (pattern, handler, context) {
 
 module.exports.prototype.off = function (pattern, handler) {
   for(var i = 0; i<this.listeners.length; i++) {
-    if(utils.deepEqual(this.listeners[i].pattern, pattern) && this.listeners[i].handler == handler) {
+    if(this.utils.deepEqual(this.listeners[i].pattern, pattern) && this.listeners[i].handler == handler) {
       this.listeners.splice(i, 1)
       i -= 1
     }
@@ -114,7 +116,7 @@ module.exports.prototype.emit = function (chemical) {
   var listenersCount = this.listeners.length
   for(var i = 0; i<listenersCount && i<this.listeners.length; i++) {
     var listener = this.listeners[i]
-    if(utils.deepEqual(listener.pattern, chemical)) {
+    if(this.utils.deepEqual(listener.pattern, chemical)) {
       if(listener.once) {
         this.listeners.splice(i, 1);
         i -= 1;
