@@ -2,11 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.1.0] - 2016-04-20
 
 ### Changed
 
-- `plasma.on(pattern)`
+- `plasma.on(pattern)` - supports class definitions for pattern
 
 ### Added
 

@@ -1,4 +1,4 @@
-# Plasma v1.0.0
+# Plasma v1.1.0
 
 Implementation of [node-organic/Plasma v1.0.0](https://github.com/VarnaLab/node-organic/blob/master/docs/Plasma.md).
 
@@ -104,3 +104,14 @@ triggers **all** the following:
 ### custom pattern <-> chemical match algoritms
 
 * override `plasma.utils.deepEqual(pattern, chemical)`
+
+### match chemicals using class definitions as pattern
+
+```
+var Class1 = function () {}
+plasma.on(Class1, function (instance) {
+
+})
+var instance = new Class1()
+plasma.emit(instance)
+```
