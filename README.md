@@ -61,6 +61,10 @@ Unregisters chemical reaction functions, the opposite of `plasma.on` or `plasma.
 
 Removes previously stored chemical via `plasma.store`. It does removal by reference and won't throw exception if given chemical is not found in plasma's store.
 
+### plasma.trashAll(pattern)
+
+Removes previously stored chemicals via `plasma.store`. It does removal by chemical pattern
+
 ### plasma.pipe(function(c){})
 
 Method which will invoke function per any chemical been emitted or stored in plasma.

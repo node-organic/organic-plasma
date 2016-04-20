@@ -86,7 +86,16 @@ module.exports.prototype.has = function (pattern) {
 module.exports.prototype.trash = function (chemical) {
   for(var i = 0; i < this.storedChemicals.length; i++) {
     if (this.storedChemicals[i] === chemical) {
-      this.storedChemicals[i].splice(i, 1)
+      this.storedChemicals.splice(i, 1)
+      i -= 1
+    }
+  }
+}
+
+module.exports.prototype.trashAll = function (pattern) {
+  for(var i = 0; i < this.storedChemicals.length; i++) {
+    if (this.utils.deepEqual(pattern, this.storedChemicals[i])) {
+      this.storedChemicals.splice(i, 1)
       i -= 1
     }
   }

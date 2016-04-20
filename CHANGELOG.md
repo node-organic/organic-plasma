@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.1.0] - 2016-04-20
 
+### Fixed
+
+- `plasma.trash`
+
 ### Changed
 
 - `plasma.on(pattern)` - supports class definitions for pattern
@@ -13,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `plasma.has`
 - `plasma.utils.deepEqual`
 - `plasma.utils.isFilledArray`
+- `plasma.trashAll`
 
 ## [1.0.1] - 2016-02-17
 
