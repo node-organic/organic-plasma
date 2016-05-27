@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.1.0] - 2016-04-20
+## [1.1.0] - 2016-05-27
 
 ### Fixed
 
@@ -11,13 +11,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - `plasma.on(pattern)` - supports class definitions for pattern
+- core organic Plasma interface inheritance support for browser usage
 
 ### Added
 
 - `plasma.has`
+- `plasma.get`
+- `plasma.getAll`
 - `plasma.utils.deepEqual`
 - `plasma.utils.isFilledArray`
 - `plasma.trashAll`
+- `plasma.storeAndOverride`
 
 ## [1.0.1] - 2016-02-17
 

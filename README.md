@@ -18,9 +18,24 @@ ___arguments___
 Does the same as `plasma.emit` but also triggers any
 reactions registered in the future using `plasma.on`
 
+### plasma.storeAndOverride(c)
+
+Does the same as `plasma.emit` but also triggers any
+reactions registered in the future using `plasma.on`.
+
+It overrides previously stored chemicals having the same chemical using `c.type`
+
 ### plasma.has(pattern) : boolean
 
 Checks synchroniously for stored chemicals by given pattern.
+
+### plasma.get(pattern) : Chemical
+
+Returns synchroniously first found stored chemical by given pattern.
+
+### plasma.getAll(pattern) : Array [ Chemical ]
+
+Returns synchroniously stored chemicals by given pattern.
 
 ### plasma.on(pattern, function (c){} [, context])
 

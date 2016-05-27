@@ -1,15 +1,15 @@
-var Plasma = require("organic").Plasma
-var util = require("util")
+var Plasma = require('organic').Plasma
 var utils = require('./lib/utils')
 
-module.exports = function(){
+var Plasma = module.exports = function(){
   this.listeners = []
   this.remoteSubscribers = []
   this.storedChemicals = []
   this.utils = utils
 }
 
-util.inherits(module.exports, Plasma)
+module.exports.prototype = Object.create(Plasma.prototype)
+module.exports.constructor = Plasma
 
 module.exports.prototype.on = function (pattern, handler, context, once) {
   if(Array.isArray(pattern)) {
@@ -73,8 +73,16 @@ module.exports.prototype.store = function (chemical) {
   this.emit(chemical)
 }
 
+module.exports.prototype.storeAndOverride = function (chemical) {
+  if (this.has({type: chemical.type})) {
+    this.trashAll({type: chemical.type})
+  }
+  this.storedChemicals.push(chemical)
+  this.emit(chemical)
+}
+
 module.exports.prototype.has = function (pattern) {
-  for(var i = 0; this.storedChemicals.length; i++) {
+  for(var i = 0; i < this.storedChemicals.length; i++) {
     var chemical = this.storedChemicals[i]
     if (this.utils.deepEqual(pattern, chemical)) {
       return true
@@ -82,6 +90,27 @@ module.exports.prototype.has = function (pattern) {
   }
   return false
 }
+
+module.exports.prototype.get = function (pattern) {
+  for(var i = 0; i < this.storedChemicals.length; i++) {
+    var chemical = this.storedChemicals[i]
+    if (this.utils.deepEqual(pattern, chemical)) {
+      return chemical
+    }
+  }
+}
+
+module.exports.prototype.getAll = function (pattern) {
+  var result = []
+  for(var i = 0; i < this.storedChemicals.length; i++) {
+    var chemical = this.storedChemicals[i]
+    if (this.utils.deepEqual(pattern, chemical)) {
+      result.push(chemical)
+    }
+  }
+  return result
+}
+
 
 module.exports.prototype.trash = function (chemical) {
   for(var i = 0; i < this.storedChemicals.length; i++) {
