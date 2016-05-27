@@ -1,4 +1,4 @@
-# Plasma v1.0.0
+# Plasma v1.1.0
 
 Implementation of [node-organic/Plasma v1.0.0](https://github.com/VarnaLab/node-organic/blob/master/docs/Plasma.md).
 
@@ -17,6 +17,25 @@ ___arguments___
 
 Does the same as `plasma.emit` but also triggers any
 reactions registered in the future using `plasma.on`
+
+### plasma.storeAndOverride(c)
+
+Does the same as `plasma.emit` but also triggers any
+reactions registered in the future using `plasma.on`.
+
+It overrides previously stored chemicals having the same chemical using `c.type`
+
+### plasma.has(pattern) : boolean
+
+Checks synchroniously for stored chemicals by given pattern.
+
+### plasma.get(pattern) : Chemical
+
+Returns synchroniously first found stored chemical by given pattern.
+
+### plasma.getAll(pattern) : Array [ Chemical ]
+
+Returns synchroniously stored chemicals by given pattern.
 
 ### plasma.on(pattern, function (c){} [, context])
 
@@ -57,6 +76,10 @@ Unregisters chemical reaction functions, the opposite of `plasma.on` or `plasma.
 
 Removes previously stored chemical via `plasma.store`. It does removal by reference and won't throw exception if given chemical is not found in plasma's store.
 
+### plasma.trashAll(pattern)
+
+Removes previously stored chemicals via `plasma.store`. It does removal by chemical pattern
+
 ### plasma.pipe(function(c){})
 
 Method which will invoke function per any chemical been emitted or stored in plasma.
@@ -96,3 +119,18 @@ triggers **all** the following:
 ### feedback support
 
 * [organic-plasma-feedback](https://github.com/outbounder/organic-plasma-feedback)
+
+### custom pattern <-> chemical match algoritms
+
+* override `plasma.utils.deepEqual(pattern, chemical)`
+
+### match chemicals using class definitions as pattern
+
+```
+var Class1 = function () {}
+plasma.on(Class1, function (instance) {
+
+})
+var instance = new Class1()
+plasma.emit(instance)
+```
