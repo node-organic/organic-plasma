@@ -159,9 +159,11 @@ module.exports.prototype.emit = function (chemical) {
   this.notifySubscribers(chemical)
 
   var listenersCount = this.listeners.length
+  var hasListeners = false
   for(var i = 0; i<listenersCount && i<this.listeners.length; i++) {
     var listener = this.listeners[i]
     if(this.utils.deepEqual(listener.pattern, chemical)) {
+      hasListeners = true
       if(listener.once) {
         this.listeners.splice(i, 1);
         i -= 1;
@@ -171,5 +173,13 @@ module.exports.prototype.emit = function (chemical) {
       var aggregated = listener.handler.call(listener.context, chemical, function noop () {})
       if (aggregated === true) return // halt chemical transfer, it has been aggregated
     }
+  }
+
+  if (!hasListeners && !this.utils.isChemicalInSet(chemical, this.storedChemicals) && chemical.type !== 'plasma/missingHandler') {
+    this.emit({
+      type: 'plasma/missingHandler',
+      chemical: chemical
+    })
+    return
   }
 }
