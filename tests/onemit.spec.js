@@ -25,4 +25,25 @@ describe("plasma on / emit feature", function(){
       someData: true
     })
   })
+
+  it("customizing the missing handler warning chemical type", function(done){
+    var opts = {
+      missingHandlersChemical: "plasma/customWarningChemical"
+    }
+    var instance  = new Plasma(opts)
+
+    instance.on(opts.missingHandlersChemical, function(c){
+      expect(c.type).toBe(opts.missingHandlersChemical)
+      expect(c.chemical).toEqual({
+        type: "c2",
+        someData: true
+      })
+      done()
+    })
+
+    instance.emit({
+      type: "c2",
+      someData: true
+    })
+  })
 })

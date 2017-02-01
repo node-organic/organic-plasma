@@ -1,11 +1,15 @@
 var Plasma = require('organic').Plasma
 var utils = require('./lib/utils')
 
-var Plasma = module.exports = function(){
+var Plasma = module.exports = function(opts){
   this.listeners = []
   this.remoteSubscribers = []
   this.storedChemicals = []
   this.utils = utils
+  this.opts = opts || {}
+  if (!this.opts.missingHandlersChemical) {
+    this.opts.missingHandlersChemical = "plasma/missingHandler"
+  }
 }
 
 module.exports.prototype = Object.create(Plasma.prototype)
@@ -175,9 +179,9 @@ module.exports.prototype.emit = function (chemical) {
     }
   }
 
-  if (!hasListeners && !this.utils.isChemicalInSet(chemical, this.storedChemicals) && chemical.type !== 'plasma/missingHandler') {
+  if (!hasListeners && !this.utils.isChemicalInSet(chemical, this.storedChemicals) && chemical.type !== this.opts.missingHandlersChemical) {
     this.emit({
-      type: 'plasma/missingHandler',
+      type: this.opts.missingHandlersChemical,
       chemical: chemical
     })
     return
