@@ -134,3 +134,37 @@ plasma.on(Class1, function (instance) {
 var instance = new Class1()
 plasma.emit(instance)
 ```
+
+### notification of missing listeners/handlers for a chemical
+
+* When emitting a chemical (via the `.emit` method) which has no registered handlers (via the `.on`/`.once` methods) a warning chemical will be emitted (by default its type is `plasma/missingHandler`)
+
+```
+instance.on("plasma/missingHandler", function(c){
+  ...
+  expect(c).toBe({
+    type: 'plasma/missingHandler',
+    chemical: {
+      type: chemicalWithNoHandler,
+      someData: true
+    }
+  })
+  ...
+})
+
+instance.emit({
+  type: "chemicalWithNoHandler",
+  someData: true
+})
+```
+
+* The missing handlers warning chemical will not be emitted when storing chemicals.
+* The type of the missing handlers warning chemical can be customized when instantiating the plasma
+
+```
+var instance  = new Plasma({
+  missingHandlersChemical: 'someChemicalType'
+})
+
+instance.on("someChemicalType", function(c){ ... })
+```
