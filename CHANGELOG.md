@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.0] - 2017-02-09
+
+### Added
+
+- notification of missing listeners/handlers for a chemical via `plasma.on('plasma/missingHandler', function (c) {})` by https://github.com/krasiyan
+
 ## [1.1.0] - 2016-05-27
 
 ### Fixed
