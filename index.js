@@ -1,11 +1,15 @@
 var Plasma = require('organic').Plasma
 var utils = require('./lib/utils')
 
-var Plasma = module.exports = function(){
+var Plasma = module.exports = function(opts){
   this.listeners = []
   this.remoteSubscribers = []
   this.storedChemicals = []
   this.utils = utils
+  this.opts = opts || {}
+  if (!this.opts.missingHandlersChemical) {
+    this.opts.missingHandlersChemical = "plasma/missingHandler"
+  }
 }
 
 module.exports.prototype = Object.create(Plasma.prototype)
@@ -19,12 +23,9 @@ module.exports.prototype.on = function (pattern, handler, context, once) {
       pattern = {type: pattern}
 
     var handlerExecuted = false
-    for(var i = 0; i < this.storedChemicals.length; i++) {
-      var chemical = this.storedChemicals[i]
-      if(this.utils.deepEqual(pattern, chemical)) {
-        handlerExecuted = true
-        handler.call(context, chemical)
-      }
+    if (this.utils.isChemicalInSet(pattern, this.storedChemicals)) {
+      handlerExecuted = true
+      handler.call(context, chemical)
     }
 
     if (handlerExecuted && once)
@@ -162,9 +163,11 @@ module.exports.prototype.emit = function (chemical) {
   this.notifySubscribers(chemical)
 
   var listenersCount = this.listeners.length
+  var hasListeners = false
   for(var i = 0; i<listenersCount && i<this.listeners.length; i++) {
     var listener = this.listeners[i]
     if(this.utils.deepEqual(listener.pattern, chemical)) {
+      hasListeners = true
       if(listener.once) {
         this.listeners.splice(i, 1);
         i -= 1;
@@ -174,5 +177,13 @@ module.exports.prototype.emit = function (chemical) {
       var aggregated = listener.handler.call(listener.context, chemical, function noop () {})
       if (aggregated === true) return // halt chemical transfer, it has been aggregated
     }
+  }
+
+  if (!hasListeners && !this.utils.isChemicalInSet(chemical, this.storedChemicals) && chemical.type !== this.opts.missingHandlersChemical) {
+    this.emit({
+      type: this.opts.missingHandlersChemical,
+      chemical: chemical
+    })
+    return
   }
 }

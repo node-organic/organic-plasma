@@ -44,4 +44,29 @@ describe("plasma trash feature", function(){
     instance.trashAll({type: "c1"})
   })
 
+  it("stores without emit warning chemical for missing handlers", function(){
+    var missingHandlerWarning = false
+    instance.on("plasma/missingHandler", function (c) {
+      missingHandlerWarning = true
+      throw new Error("'plasma/missingHandler' should not be emitted")
+    })
+
+    var chemical = {type: "c1"}
+    instance.store(chemical)
+    expect(instance.has(chemical)).toBe(true)
+    expect(missingHandlerWarning).toBe(false)
+  })
+
+  it("storeAndOverrides without emit warning chemical for missing handlers", function(){
+    var missingHandlerWarning = false
+    instance.on("plasma/missingHandler", function (c) {
+      missingHandlerWarning = true
+      throw new Error("'plasma/missingHandler' should not be emitted")
+    })
+
+    var chemical = {type: "c1"}
+    instance.storeAndOverride(chemical)
+    expect(instance.has(chemical)).toBe(true)
+    expect(missingHandlerWarning).toBe(false)
+  })
 })
