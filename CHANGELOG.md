@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- notification of missing listeners/handlers for a chemical via `plasma.on('plasma/missingHandler', function (c) {})` by https://github.com/krasiyan
+- notification of missing listeners/handlers for a chemical via `plasma.on('plasma/missingHandler', function (c) {})` by [krasiyan](https://github.com/krasiyan) in [PR #4](https://github.com/outbounder/organic-plasma/pull/4)
 
 ## [1.1.0] - 2016-05-27
 
