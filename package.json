@@ -1,6 +1,6 @@
 {
   "name": "organic-plasma",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Implementation of node-organic/Plasma v1.0.0",
   "main": "index.js",
   "scripts": {
