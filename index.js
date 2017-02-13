@@ -23,9 +23,12 @@ module.exports.prototype.on = function (pattern, handler, context, once) {
       pattern = {type: pattern}
 
     var handlerExecuted = false
-    if (this.utils.isChemicalInSet(pattern, this.storedChemicals)) {
-      handlerExecuted = true
-      handler.call(context, chemical)
+    for(var i = 0; i < this.storedChemicals.length; i++) {
+      var chemical = this.storedChemicals[i]
+      if(this.utils.deepEqual(pattern, chemical)) {
+        handlerExecuted = true
+        handler.call(context, chemical)
+      }
     }
 
     if (handlerExecuted && once)
