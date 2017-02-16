@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.2] - 2017-02-16
+
+### Fixed
+- `plasma.emit` will not check for missing handlers
+- `new Plasma()` will not notify for missing handlers unless it is explicitly set as `new Plasma({missingHandlersChemical: String})`
+
 ## [1.2.1] - 2017-02-09
 
 ### Fixed

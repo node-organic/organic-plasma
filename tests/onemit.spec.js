@@ -11,7 +11,7 @@ describe("plasma on / emit feature", function(){
   })
 
   it("'emit' with missing 'on' results in emiting a warning chemical", function(done){
-    var instance  = new Plasma()
+    var instance  = new Plasma({missingHandlersChemical: 'plasma/missingHandler'})
     instance.on("plasma/missingHandler", function(c){
       expect(c.type).toBe("plasma/missingHandler")
       expect(c.chemical).toEqual({

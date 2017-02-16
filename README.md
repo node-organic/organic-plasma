@@ -1,4 +1,4 @@
-# Plasma v1.2.0
+# Plasma v1.2.2
 
 Implementation of [node-organic/Plasma v1.0.0](https://github.com/VarnaLab/node-organic/blob/master/docs/Plasma.md).
 
@@ -137,9 +137,18 @@ plasma.emit(instance)
 
 ### notification of missing listeners/handlers for a chemical
 
-* When emitting a chemical (via the `.emit` method) which has no registered handlers (via the `.on`/`.once` methods) a warning chemical will be emitted (by default its type is `plasma/missingHandler`)
+When emitting a chemical (via the `.emit` method) which has no registered handlers (via the `.on`/`.once` methods) a warning chemical will be emitted (by default its type is `plasma/missingHandler`)
+
+
+* The missing handlers warning chemical will not be emitted when storing chemicals.
+* The type of the missing handlers warning chemical can be customized when instantiating the plasma
+* by default this feature is disabled unless `missingHandlersChemical` value is provided
 
 ```
+var instance  = new Plasma({
+  missingHandlersChemical: 'plasma/missingHandler'
+})
+
 instance.on("plasma/missingHandler", function(c){
   ...
   expect(c).toBe({
@@ -156,15 +165,4 @@ instance.emit({
   type: "chemicalWithNoHandler",
   someData: true
 })
-```
-
-* The missing handlers warning chemical will not be emitted when storing chemicals.
-* The type of the missing handlers warning chemical can be customized when instantiating the plasma
-
-```
-var instance  = new Plasma({
-  missingHandlersChemical: 'someChemicalType'
-})
-
-instance.on("someChemicalType", function(c){ ... })
 ```

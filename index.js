@@ -6,10 +6,7 @@ var Plasma = module.exports = function(opts){
   this.remoteSubscribers = []
   this.storedChemicals = []
   this.utils = utils
-  this.opts = opts || {}
-  if (!this.opts.missingHandlersChemical) {
-    this.opts.missingHandlersChemical = "plasma/missingHandler"
-  }
+  this.opts = opts || {missingHandlersChemical: false}
 }
 
 module.exports.prototype = Object.create(Plasma.prototype)
@@ -182,11 +179,10 @@ module.exports.prototype.emit = function (chemical) {
     }
   }
 
-  if (!hasListeners && !this.utils.isChemicalInSet(chemical, this.storedChemicals) && chemical.type !== this.opts.missingHandlersChemical) {
+  if (this.opts.missingHandlersChemical && !hasListeners && chemical.type !== this.opts.missingHandlersChemical) {
     this.emit({
       type: this.opts.missingHandlersChemical,
       chemical: chemical
     })
-    return
   }
 }
