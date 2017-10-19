@@ -12,9 +12,9 @@ var Plasma = module.exports = function(opts){
 module.exports.prototype = Object.create(Plasma.prototype)
 module.exports.constructor = Plasma
 
-module.exports.prototype.on = function (pattern, handler, context, once) {
+module.exports.prototype.on = function (pattern, handler, once) {
   if(Array.isArray(pattern)) {
-    this.onAll(pattern, handler, context, once)
+    this.onAll(pattern, handler, once)
   } else {
     if (typeof pattern == "string")
       pattern = {type: pattern}
@@ -24,7 +24,7 @@ module.exports.prototype.on = function (pattern, handler, context, once) {
       var chemical = this.storedChemicals[i]
       if(this.utils.deepEqual(pattern, chemical)) {
         handlerExecuted = true
-        handler.call(context, chemical)
+        handler(chemical)
       }
     }
 
@@ -34,30 +34,29 @@ module.exports.prototype.on = function (pattern, handler, context, once) {
     this.listeners.push({
       pattern: pattern,
       handler: handler,
-      context: context,
       once: once
     })
   }
 }
 
-module.exports.prototype.onAll = function (patterns, handler, context, once) {
+module.exports.prototype.onAll = function (patterns, handler, once) {
   var self = this
   var chemicalsFound = []
   var createSingleHandler = function(index){
     return function(c){
       chemicalsFound[index] = c
       if(self.utils.isFilledArray(chemicalsFound) && chemicalsFound.length == patterns.length) {
-        handler.apply(context, chemicalsFound)
+        handler.apply(undefined, chemicalsFound)
       }
     }
   }
   for(var i = 0; i<patterns.length; i++) {
-    this.on(patterns[i], createSingleHandler(i), context, once)
+    this.on(patterns[i], createSingleHandler(i),  once)
   }
 }
 
-module.exports.prototype.once = function (pattern, handler, context) {
-  this.on(pattern, handler, context, true)
+module.exports.prototype.once = function (pattern, handler) {
+  this.on(pattern, handler, true)
 }
 
 module.exports.prototype.off = function (pattern, handler) {
@@ -156,9 +155,10 @@ module.exports.prototype.notifySubscribers = function (chemical) {
   }
 }
 
-module.exports.prototype.emit = function (chemical) {
-  if(typeof chemical == "string")
+module.exports.prototype.emit = function (chemical, callback) {
+  if (typeof chemical == "string") {
     chemical = {type: chemical}
+  }
 
   this.notifySubscribers(chemical)
 
@@ -174,7 +174,7 @@ module.exports.prototype.emit = function (chemical) {
         listenersCount -= 1;
       }
 
-      var aggregated = listener.handler.call(listener.context, chemical, function noop () {})
+      var aggregated = listener.handler(chemical, callback || function noop () {})
       if (aggregated === true) return // halt chemical transfer, it has been aggregated
     }
   }

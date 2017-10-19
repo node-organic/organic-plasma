@@ -6,7 +6,7 @@ describe("chemical as instances", function(){
   }
   it("matches by chemical isntance class types", function(done){
     instance.on(Class1, function(c){
-      expect(c.test).to.eq(1)
+      expect(c.data.test).toBe(1)
       done()
     })
     instance.emit(new Class1({test: 1}))

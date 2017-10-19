@@ -2,6 +2,21 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.0] - ToBeReleased
+
+**The release contains breaking changes towards v1.x.x**
+Upgrade path requires removing `organic-plasma-feedback` decoration as feedback support is re-implemented in organic-plasma module
+
+### Changed
+- `plasma.on` - supports feedback callback
+- `plasma.on(array)` - supports feedback callback
+- `plasma.emit` - supports feedback callback
+- removed `context` argument from `plasma.on`, `plasma.onAll`, `plasma.once`
+
+### Fixed
+
+- jasmine test specs
+
 ## [1.2.2] - 2017-02-16
 
 ### Fixed
