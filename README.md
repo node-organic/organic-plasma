@@ -13,6 +13,10 @@ ___arguments___
   * as `String` equals to `{ type: String, ... }` Chemical
   * as `Object` equals to Chemical
 
+___returns___
+
+* `true` - *only* when chemical has been aggregated
+
 ### plasma.store(c)
 
 Does the same as `plasma.emit` but also triggers any
@@ -99,7 +103,7 @@ plasma.on('c1', function reaction1 () {
 plasma.on('c1', function reaction2 () {
   // won't be reached, reaction1 aggregated the chemical
 })
-plasma.emit('c1')
+console.log(plasma.emit('c1')) // === true
 ```
 
 ### optional usage of arguments

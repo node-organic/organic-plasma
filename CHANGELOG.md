@@ -10,12 +10,13 @@ Upgrade path requires removing `organic-plasma-feedback` decoration as feedback 
 ### Changed
 - `plasma.on` - supports feedback callback
 - `plasma.on(array)` - supports feedback callback
-- `plasma.emit` - supports feedback callback
+- `plasma.emit` - supports feedback callback, returns `true` Boolean value when chemical has been aggregated
 - removed `context` argument from `plasma.on`, `plasma.onAll`, `plasma.once`
 
 ### Fixed
 
 - jasmine test specs
+- plasma.emit to return true when chemical has been aggregated
 
 ## [1.2.2] - 2017-02-16
 

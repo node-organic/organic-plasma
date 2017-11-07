@@ -175,7 +175,7 @@ module.exports.prototype.emit = function (chemical, callback) {
       }
 
       var aggregated = listener.handler(chemical, callback || function noop () {})
-      if (aggregated === true) return // halt chemical transfer, it has been aggregated
+      if (aggregated === true) return true // halt chemical transfer, it has been aggregated
     }
   }
 
