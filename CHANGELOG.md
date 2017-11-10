@@ -12,6 +12,7 @@ Upgrade path requires removing `organic-plasma-feedback` decoration as feedback 
 - `plasma.on(array)` - supports feedback callback
 - `plasma.emit` - supports feedback callback, returns `true` Boolean value when chemical has been aggregated
 - `plasma.off` - supports `handler` only form in addition to `pattern` + function `handler`
+- `plasma.store` - supports String chemicals
 
 ### Fixed
 

@@ -25,7 +25,7 @@ module.exports.prototype.on = function (pattern, handler, context, once) {
       var chemical = this.storedChemicals[i]
       if(this.utils.deepEqual(pattern, chemical)) {
         handlerExecuted = true
-        handler(chemical)
+        handler.call(context, chemical)
       }
     }
 
@@ -84,6 +84,9 @@ module.exports.prototype.off = function (pattern, handler) {
 }
 
 module.exports.prototype.store = function (chemical) {
+  if (typeof chemical == "string") {
+    chemical = {type: chemical}
+  }
   this.storedChemicals.push(chemical)
   return this.emit(chemical)
 }
