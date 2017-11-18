@@ -61,13 +61,15 @@ module.exports.prototype.once = function (pattern, handler, context) {
   this.on(pattern, handler, context, true)
 }
 
-module.exports.prototype.off = function (pattern, handler) {
-  if (pattern && handler) {
+module.exports.prototype.off = function (pattern, handler, context) {
+  if (typeof pattern !== 'function') {
     if (typeof pattern == "string") {
       pattern = {type: pattern}
     }
     for(var i = 0; i<this.listeners.length; i++) {
-      if(this.utils.deepEqual(this.listeners[i].pattern, pattern) && this.listeners[i].handler == handler) {
+      if(this.utils.deepEqual(this.listeners[i].pattern, pattern) &&
+        this.listeners[i].handler === handler &&
+        this.listeners[i].context === context) {
         this.listeners.splice(i, 1)
         i -= 1
       }
@@ -75,7 +77,7 @@ module.exports.prototype.off = function (pattern, handler) {
   } else
   if (typeof pattern === 'function') {
     for(var i = 0; i<this.listeners.length; i++) {
-      if(this.listeners[i].handler == pattern) {
+      if(this.listeners[i].handler === pattern && this.listeners[i].context === handler) {
         this.listeners.splice(i, 1)
         i -= 1
       }

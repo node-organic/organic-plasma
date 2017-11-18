@@ -86,7 +86,7 @@ ___arguments___
 
 The same as `plasma.on([p1, p2], function(c1, c2){})` but will trigger the function only once.
 
-### plasma.off(pattern, function)
+### plasma.off(pattern, function, context)
 
 Unregisters chemical reaction functions, the opposite of `plasma.on` or `plasma.once`.
 
@@ -96,6 +96,7 @@ ___arguments___
   * as `String` or `Array` or `Object` - needs function handler for unregister to succeed
   * as `Function` - finds **all** registered chemical reactions with that function handler and unregisters them.
 * `function` *optional* required only when `pattern` is String, Array or Object. This should be the exact function used for `plasma.on` or `plasma.once`
+* `context` *optional* used to scope removing of chemical reactions within context
 
 ### plasma.trash(c)
 
