@@ -2,16 +2,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [2.0.0] - ToBeReleased
+## [2.0.0] - [ToBeReleased]
 
 **The release contains breaking changes towards v1.x.x**
 Upgrade path requires removing `organic-plasma-feedback` decoration as feedback support is re-implemented in organic-plasma module
 
 ### Changed
+
 - `plasma.on` - supports feedback callback
 - `plasma.on(array)` - supports feedback callback
 - `plasma.emit` - supports feedback callback, returns `true` Boolean value when chemical has been aggregated
-- `plasma.off` - supports `handler` form in addition to `pattern` + function `handler`
+- `plasma.off` - added additional support for single `handler` form
 - `plasma.store` - supports String chemicals
 
 ### Fixed

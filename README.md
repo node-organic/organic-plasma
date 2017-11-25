@@ -40,19 +40,15 @@ ___returns___
 ### plasma.has(pattern) : boolean
 ___returns___
 
-* `true` - *only* when chemical has been aggregated
-Checks synchroniously for stored chemicals by given pattern.
+Checks synchronously for stored chemicals by given pattern.
 
 ### plasma.get(pattern) : Chemical
 
-Returns synchroniously first found stored chemical by given pattern.
-___returns___
-
-* `true` - *only* when chemical has been aggregated
+Returns synchronously first found stored chemical by given pattern.
 
 ### plasma.getAll(pattern) : Array [ Chemical ]
 
-Returns synchroniously stored chemicals by given pattern.
+Returns synchronously all stored chemicals by given pattern.
 
 ### plasma.on(pattern, function (c [, callback]){} [, context])
 
