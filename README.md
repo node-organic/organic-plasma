@@ -1,10 +1,10 @@
-# Plasma v1.2.2
+# Plasma v2.0.0
 
 Implementation of [node-organic/Plasma v1.0.0](https://github.com/VarnaLab/node-organic/blob/master/docs/Plasma.md).
 
 ## Public API
 
-### plasma.emit(c)
+### plasma.emit(c [, data, callback]) : Boolean
 
 Immediatelly triggers any reactions matching given `c` chemical.
 
@@ -13,31 +13,44 @@ ___arguments___
   * as `String` equals to `{ type: String, ... }` Chemical
   * as `Object` equals to Chemical
 
-### plasma.store(c)
+___returns___
+
+* `true` - *only* when chemical has been aggregated
+
+### plasma.store(c) : Boolean
 
 Does the same as `plasma.emit` but also triggers any
 reactions registered in the future using `plasma.on`
 
-### plasma.storeAndOverride(c)
+___returns___
+
+* `true` - *only* when chemical has been aggregated
+
+### plasma.storeAndOverride(c) : Boolean
 
 Does the same as `plasma.emit` but also triggers any
 reactions registered in the future using `plasma.on`.
 
 It overrides previously stored chemicals having the same chemical using `c.type`
 
-### plasma.has(pattern) : boolean
+___returns___
 
-Checks synchroniously for stored chemicals by given pattern.
+* `true` - *only* when chemical has been aggregated
+
+### plasma.has(pattern) : boolean
+___returns___
+
+Checks synchronously for stored chemicals by given pattern.
 
 ### plasma.get(pattern) : Chemical
 
-Returns synchroniously first found stored chemical by given pattern.
+Returns synchronously first found stored chemical by given pattern.
 
 ### plasma.getAll(pattern) : Array [ Chemical ]
 
-Returns synchroniously stored chemicals by given pattern.
+Returns synchronously all stored chemicals by given pattern.
 
-### plasma.on(pattern, function (c){} [, context])
+### plasma.on(pattern, function (c [, callback]){} [, context])
 
 Registers a function to be triggered when chemical emitted in plasma matches given pattern.
 
@@ -46,9 +59,10 @@ ___arguments___
   * as `String` matching `Chemical.type` property
   * as `Object` matching one or many properties of `Chemical`
 * `c` - `Object` Chemical matching `pattern`
-* `context` *optional* - will be used to invoke for function's context
+* `callback` - *optional* callback function used for feedback
+* `context` - *optional* context to be used for calling the function
 
-### plasma.once(pattern, function (c){} [, context])
+### plasma.once(pattern, function (c [, callback]){} [, context])
 
 The same as `plasma.on(pattern, function reaction (c){})` but will trigger the function only once.
 
@@ -62,15 +76,23 @@ ___arguments___
   * having elements `Object` matching one or many properties of `Chemical`
 * `c` - array
   * `Object` Chemicals matching `p` array maintaining their index order
-* `context` *optional* - will be used to invoke for function's context
+* `context` - *optional* context to be used for calling the function
 
-### plasma.once([p1, p2], function (c1, c2) {} [, context])
+### plasma.once([p1, p2, ...], function (c1, c2, ...) {} [, context])
 
 The same as `plasma.on([p1, p2], function(c1, c2){})` but will trigger the function only once.
 
-### plasma.off(pattern, function)
+### plasma.off(pattern, function, context)
 
 Unregisters chemical reaction functions, the opposite of `plasma.on` or `plasma.once`.
+
+___arguments___
+
+* `pattern`
+  * as `String` or `Array` or `Object` - needs function handler for unregister to succeed
+  * as `Function` - finds **all** registered chemical reactions with that function handler and unregisters them.
+* `function` *optional* required only when `pattern` is String, Array or Object. This should be the exact function used for `plasma.on` or `plasma.once`
+* `context` *optional* used to scope removing of chemical reactions within context
 
 ### plasma.trash(c)
 
@@ -101,7 +123,7 @@ plasma.on('c1', function reaction1 () {
 plasma.on('c1', function reaction2 () {
   // won't be reached, reaction1 aggregated the chemical
 })
-plasma.emit('c1')
+console.log(plasma.emit('c1')) // === true
 ```
 
 ### optional usage of arguments
@@ -118,9 +140,16 @@ triggers **all** the following:
 
 ### feedback support
 
-* [organic-plasma-feedback](https://github.com/outbounder/organic-plasma-feedback)
+```
+plasma.on('c1', function reaction1 (c, callback) {
+  callback(c)
+})
+plasma.emit('c1', function callback (c) {
+  // c.type === 'c1'
+})
+```
 
-### custom pattern <-> chemical match algoritms
+### custom pattern <-> chemical match algorithms
 
 * override `plasma.utils.deepEqual(pattern, chemical)`
 

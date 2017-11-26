@@ -14,10 +14,11 @@ module.exports.constructor = Plasma
 
 module.exports.prototype.on = function (pattern, handler, context, once) {
   if(Array.isArray(pattern)) {
-    this.onAll(pattern, handler, context, once)
+    this._onAll(pattern, handler, context, once)
   } else {
-    if (typeof pattern == "string")
+    if (typeof pattern == "string") {
       pattern = {type: pattern}
+    }
 
     var handlerExecuted = false
     for(var i = 0; i < this.storedChemicals.length; i++) {
@@ -34,13 +35,13 @@ module.exports.prototype.on = function (pattern, handler, context, once) {
     this.listeners.push({
       pattern: pattern,
       handler: handler,
-      context: context,
-      once: once
+      once: once,
+      context: context
     })
   }
 }
 
-module.exports.prototype.onAll = function (patterns, handler, context, once) {
+module.exports.prototype._onAll = function (patterns, handler, context, once) {
   var self = this
   var chemicalsFound = []
   var createSingleHandler = function(index){
@@ -52,7 +53,7 @@ module.exports.prototype.onAll = function (patterns, handler, context, once) {
     }
   }
   for(var i = 0; i<patterns.length; i++) {
-    this.on(patterns[i], createSingleHandler(i), context, once)
+    this.on(patterns[i], createSingleHandler(i),  once)
   }
 }
 
@@ -60,18 +61,36 @@ module.exports.prototype.once = function (pattern, handler, context) {
   this.on(pattern, handler, context, true)
 }
 
-module.exports.prototype.off = function (pattern, handler) {
-  for(var i = 0; i<this.listeners.length; i++) {
-    if(this.utils.deepEqual(this.listeners[i].pattern, pattern) && this.listeners[i].handler == handler) {
-      this.listeners.splice(i, 1)
-      i -= 1
+module.exports.prototype.off = function (pattern, handler, context) {
+  if (typeof pattern !== 'function') {
+    if (typeof pattern == "string") {
+      pattern = {type: pattern}
+    }
+    for(var i = 0; i<this.listeners.length; i++) {
+      if(this.utils.deepEqual(this.listeners[i].pattern, pattern) &&
+        this.listeners[i].handler === handler &&
+        this.listeners[i].context === context) {
+        this.listeners.splice(i, 1)
+        i -= 1
+      }
+    }
+  } else
+  if (typeof pattern === 'function') {
+    for(var i = 0; i<this.listeners.length; i++) {
+      if(this.listeners[i].handler === pattern && this.listeners[i].context === handler) {
+        this.listeners.splice(i, 1)
+        i -= 1
+      }
     }
   }
 }
 
 module.exports.prototype.store = function (chemical) {
+  if (typeof chemical == "string") {
+    chemical = {type: chemical}
+  }
   this.storedChemicals.push(chemical)
-  this.emit(chemical)
+  return this.emit(chemical)
 }
 
 module.exports.prototype.storeAndOverride = function (chemical) {
@@ -79,7 +98,7 @@ module.exports.prototype.storeAndOverride = function (chemical) {
     this.trashAll({type: chemical.type})
   }
   this.storedChemicals.push(chemical)
-  this.emit(chemical)
+  return this.emit(chemical)
 }
 
 module.exports.prototype.has = function (pattern) {
@@ -156,9 +175,10 @@ module.exports.prototype.notifySubscribers = function (chemical) {
   }
 }
 
-module.exports.prototype.emit = function (chemical) {
-  if(typeof chemical == "string")
+module.exports.prototype.emit = function (chemical, callback) {
+  if (typeof chemical == "string") {
     chemical = {type: chemical}
+  }
 
   this.notifySubscribers(chemical)
 
@@ -174,8 +194,8 @@ module.exports.prototype.emit = function (chemical) {
         listenersCount -= 1;
       }
 
-      var aggregated = listener.handler.call(listener.context, chemical, function noop () {})
-      if (aggregated === true) return // halt chemical transfer, it has been aggregated
+      var aggregated = listener.handler.call(listener.context, chemical, callback || function noop () {})
+      if (aggregated === true) return true // halt chemical transfer, it has been aggregated
     }
   }
 
