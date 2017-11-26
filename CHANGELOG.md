@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [2.0.0] - [ToBeReleased]
+## [2.0.0] - [26.11.2017]
 
 **The release contains breaking changes towards v1.x.x**
 Upgrade path requires removing `organic-plasma-feedback` decoration as feedback support is re-implemented in organic-plasma module
