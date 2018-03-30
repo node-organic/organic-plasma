@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/outbounder/organic-plasma.git"
+    "url": "git://github.com/node-organic/organic-plasma.git"
   },
   "author": "Boris Filipov",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/outbounder/organic-plasma/issues"
+    "url": "https://github.com/node-organic/organic-plasma/issues"
   },
-  "homepage": "https://github.com/outbounder/organic-plasma",
+  "homepage": "https://github.com/node-organic/organic-plasma",
   "dependencies": {
     "organic": ">= 1.0.0"
   },
@@ -27,5 +27,8 @@
   },
   "engines": {
     "node": ">=4.2.3"
+  },
+  "directories": {
+    "test": "tests"
   }
 }

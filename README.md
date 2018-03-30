@@ -195,3 +195,41 @@ instance.emit({
   someData: true
 })
 ```
+
+### throw on missing listeners/handlers for a chemical
+
+When emitting a chemical (via the `.emit` method) which has no registered handlers (via the `.on`/`.once` methods) an Error will be thrown
+
+* The missing handlers error chemical will not be thrown when storing chemicals.
+* by default this feature is disabled unless `throwOnMissingHandler` value is set to `true`
+
+```
+var instance  = new Plasma({
+  throwOnMissingHandler: true
+})
+
+instance.emit("chemicalWithNoHandler") // throws Error
+```
+
+### emit and collect results
+
+To wait all feedbacks provided by organelles upon a single chemical emit
+use `emitAndCollect` method
+
+```
+var instance  = new Plasma()
+instance.on('c1', function reaction1 (c, callback) {
+  callback(null, 1)
+})
+instance.on('c1', function reaction2 (c, callback) {
+  callback(null, 2)
+})
+instance.emitAndCollect('c1', function (results) {
+  console.log(results) // [{err: null, data: 1}, {err: null, data: 2}]
+})
+```
+
+___notes___
+
+* order of results is not guaranteed
+* all reactions must use and invoke the callback to respect the control flow

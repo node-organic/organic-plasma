@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.1.0] - [30.03.2018]
+
+### Added
+
+- `plasma.emitAndCollect` - emits chemical to all and return collected their feedback
+- `new Plasma({throwOnMissingHandler: true})` - throws Error when missing handler for a chemical
+
+### Fixed
+
+- when using `new Plasma({missingHandlersChemical: ...})` storing chemicals will no longer trigger missing handlers chemical
+
 ## [2.0.0] - [26.11.2017]
 
 **The release contains breaking changes towards v1.x.x**
