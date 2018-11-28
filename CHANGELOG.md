@@ -2,7 +2,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [2.1.0] - [30.03.2018]
+## [2.2.0] - [YYYY-MM-DD]
+
+### Fixed
+
+- when doing `plasma.emit(pattern, callback)` the callback gets called even when some of the matching reactions are not async and do not accept callback.
+
+### Changed
+
+- multi-chemicals handler supports callback - `plasma.on([pattern1, pattern2], function (c1, c2, ..., callback))`
+
+## [2.1.0] - [2018-03-30]
 
 ### Added
 
@@ -13,7 +23,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - when using `new Plasma({missingHandlersChemical: ...})` storing chemicals will no longer trigger missing handlers chemical
 
-## [2.0.0] - [26.11.2017]
+## [2.0.0] - [2017-11-26]
 
 **The release contains breaking changes towards v1.x.x**
 Upgrade path requires removing `organic-plasma-feedback` decoration as feedback support is re-implemented in organic-plasma module
