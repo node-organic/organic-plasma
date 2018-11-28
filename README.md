@@ -4,7 +4,7 @@ Implementation of [node-organic/Plasma v1.0.0](https://github.com/VarnaLab/node-
 
 ## Public API
 
-### plasma.emit(c [, data, callback]) : Boolean
+### plasma.emit(c [, callback]) : Boolean
 
 Immediatelly triggers any reactions matching given `c` chemical.
 
@@ -12,6 +12,7 @@ ___arguments___
 * `c` - Emitted chemical
   * as `String` equals to `{ type: String, ... }` Chemical
   * as `Object` equals to Chemical
+* `callback` - `function () {}` if given will be *always* invoked
 
 ___returns___
 
@@ -68,7 +69,7 @@ The same as `plasma.on(pattern, function reaction (c){})` but will trigger the f
 
 ### plasma.on([p1, p2, ...], function (c1, c2, ...){} [, context])
 
-Registers a function to be triggered when all chemicals emitted in plasma have been matched.
+Registers a function to be triggered when all chemicals emitted in plasma have been matched to the `p` array
 
 ___arguments___
 * `p` - array
@@ -80,9 +81,9 @@ ___arguments___
 
 ### plasma.once([p1, p2, ...], function (c1, c2, ...) {} [, context])
 
-The same as `plasma.on([p1, p2], function(c1, c2){})` but will trigger the function only once.
+The same as `plasma.on([p1, p2], function(c1, c2, ...){})` but will trigger the function only once.
 
-### plasma.off(pattern, function, context)
+### plasma.off(pattern[, function[, context]])
 
 Unregisters chemical reaction functions, the opposite of `plasma.on` or `plasma.once`.
 

@@ -202,8 +202,13 @@ module.exports.prototype._emit = function (chemical, options, callback) {
         i -= 1;
         listenersCount -= 1;
       }
-
       var aggregated = listener.handler.call(listener.context, chemical, callback || function noop () {})
+      if (listener.handler.length <= 1 && callback) {
+        // handler is accepting only a chemical
+        // but emit has been called with a callback, 
+        // so let's callback inflavor of the handler
+        callback()
+      }
       if (aggregated === true) return true // halt chemical transfer, it has been aggregated
     }
   }
