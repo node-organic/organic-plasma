@@ -2,15 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [2.2.0] - [YYYY-MM-DD]
+## [2.1.1] - [YYYY-MM-DD]
 
 ### Fixed
 
 - when doing `plasma.emit(pattern, callback)` the callback gets called even when some of the matching reactions are not async and do not accept callback.
-
-### Changed
-
-- multi-chemicals handler supports callback - `plasma.on([pattern1, pattern2], function (c1, c2, ..., callback))`
 
 ## [2.1.0] - [2018-03-30]
 

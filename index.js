@@ -48,10 +48,10 @@ module.exports.prototype._onAll = function (patterns, handler, context, once) {
   var self = this
   var chemicalsFound = []
   var createSingleHandler = function(index){
-    return function(c, callback){
+    return function(c){
       chemicalsFound[index] = c
       if(self.utils.isFilledArray(chemicalsFound) && chemicalsFound.length == patterns.length) {
-        handler.apply(context, chemicalsFound.concat([callback]))
+        handler.apply(context, chemicalsFound)
       }
     }
   }
