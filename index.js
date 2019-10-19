@@ -1,15 +1,11 @@
 var Plasma = require('organic').Plasma
 var utils = require('./lib/utils')
 
-var Plasma = module.exports = function(opts){
+var Plasma = module.exports = function(){
   this.listeners = []
   this.remoteSubscribers = []
   this.storedChemicals = []
   this.utils = utils
-  this.opts = opts || {
-    missingHandlersChemical: false,
-    throwOnMissingHandler: false
-  }
 }
 
 module.exports.prototype = Object.create(Plasma.prototype)
@@ -93,7 +89,7 @@ module.exports.prototype.store = function (chemical) {
     chemical = {type: chemical}
   }
   this.storedChemicals.push(chemical)
-  return this._emit(chemical, {skipMissingHandler: true})
+  return this.emit(chemical)
 }
 
 module.exports.prototype.storeAndOverride = function (chemical) {
@@ -101,7 +97,7 @@ module.exports.prototype.storeAndOverride = function (chemical) {
     this.trashAll({type: chemical.type})
   }
   this.storedChemicals.push(chemical)
-  return this._emit(chemical, {skipMissingHandler: true})
+  return this.emit(chemical)
 }
 
 module.exports.prototype.has = function (pattern) {
@@ -178,13 +174,7 @@ module.exports.prototype.notifySubscribers = function (chemical) {
   }
 }
 
-/**
-* Private emit function
-* `chemical`: String || Object
-* `options`: {skipMissingHandler: undefined Boolean}
-* `callback`: undefined || Function
-*/
-module.exports.prototype._emit = function (chemical, options, callback) {
+module.exports.prototype.emit = async function (chemical, callback) {
   if (typeof chemical == "string") {
     chemical = {type: chemical}
   }
@@ -193,6 +183,7 @@ module.exports.prototype._emit = function (chemical, options, callback) {
 
   var listenersCount = this.listeners.length
   var hasListeners = false
+  let collectedResults = []
   for(var i = 0; i<listenersCount && i<this.listeners.length; i++) {
     var listener = this.listeners[i]
     if(this.utils.deepEqual(listener.pattern, chemical)) {
@@ -202,72 +193,27 @@ module.exports.prototype._emit = function (chemical, options, callback) {
         i -= 1;
         listenersCount -= 1;
       }
-
-      var aggregated = listener.handler.call(listener.context, chemical, callback || function noop () {})
-      if (aggregated === true) return true // halt chemical transfer, it has been aggregated
-    }
-  }
-  
-  if (!options.skipMissingHandler) {
-    if (this.opts.missingHandlersChemical && !hasListeners && chemical.type !== this.opts.missingHandlersChemical) {
-      this.emit({
-        type: this.opts.missingHandlersChemical,
-        chemical: chemical
-      })
-    }
-    if (this.opts.throwOnMissingHandler && !hasListeners) {
-      throw new Error('Missing handler for chemical of type ' + chemical.type)
-    }
-  }
-}
-
-module.exports.prototype.emit = function (chemical, callback) {
-  return this._emit(chemical, {}, callback)
-}
-
-module.exports.prototype.emitAndCollect = function (chemical, callback) {
-  if (typeof chemical == "string") {
-    chemical = {type: chemical}
-  }
-
-  this.notifySubscribers(chemical)
-  
-  var listenersCount = this.listeners.length
-  var results = []
-  var expectedResultsCount = 0
-  var listeners = []
-  for(var i = 0; i<listenersCount && i<this.listeners.length; i++) {
-    var listener = this.listeners[i]
-    if(this.utils.deepEqual(listener.pattern, chemical)) {
-      if(listener.once) {
-        this.listeners.splice(i, 1);
-        i -= 1;
-        listenersCount -= 1;
+      let result
+      if (listener.handler.length === 2) {
+        // handler is in accepting arguments: chemical & callback
+        try {
+          result = await (new Promise((resolve, reject) => {
+            listener.handler.call(listener.context, chemical, (err, data) => {
+              if (err) return reject(err)
+              resolve(data)
+            })
+          }))
+        } catch (err) {
+          if (callback) return callback(err)
+          throw err
+        }
+      } else {
+        result = await listener.handler.call(listener.context, chemical)
       }
-
-      listeners.push(listener)
-      expectedResultsCount += 1
+      collectedResults.push(result)
     }
   }
-  if (this.opts.missingHandlersChemical && expectedResultsCount === 0 && chemical.type !== this.opts.missingHandlersChemical) {
-    return this.emit({
-      type: this.opts.missingHandlersChemical,
-      chemical: chemical
-    })
-  }
-  if (this.opts.throwOnMissingHandler && expectedResultsCount === 0) {
-    throw new Error('Missing handler for chemical of type ' + chemical.type)
-  }
-  for (var i = 0; i < listeners.length; i++) {
-    var listener = listeners[i]
-    var aggregated = listener.handler.call(listener.context, chemical, function (err, data) {
-      results.push({err: err, data: data})
-      expectedResultsCount -= 1
-      if (expectedResultsCount === 0) {
-        callback(results)
-      }
-    })
-    // halt chemical transfer, it has been aggregated
-    if (aggregated === true) return callback(results)
-  }
+
+  callback && callback(null, collectedResults)
+  return collectedResults
 }

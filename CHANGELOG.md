@@ -2,7 +2,22 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [2.1.0] - [30.03.2018]
+## [3.0.0] - [2019-10-21]
+
+**breaking changes introduced**
+
+Upgrade path requires replacing `plasma.emitAndCollect` with `await plasma.emit`
+
+### Changed
+
+- `plasma.emit` is now with Promise/async/await support
+
+### Removed
+
+- removed `plasma.emitAndCollect`. It is covered by `await plasma.emit`
+- removed chemical aggregation feature support. `plasma.on` passed handlers will no longer be able to stop the reaction of followup handlers
+
+## [2.1.0] - [2018-03-30]
 
 ### Added
 

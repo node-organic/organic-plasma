@@ -4,7 +4,7 @@ Implementation of [node-organic/Plasma v1.0.0](https://github.com/VarnaLab/node-
 
 ## Public API
 
-### plasma.emit(c [, data, callback]) : Boolean
+### plasma.emit(c [, callback]) : Promise<Array>
 
 Immediatelly triggers any reactions matching given `c` chemical.
 
@@ -15,18 +15,27 @@ ___arguments___
 
 ___returns___
 
-* `true` - *only* when chemical has been aggregated
+* `Promise<Array>` - returns a Promise which resolves to Array of Objects 
+been the result of any reactions been triggered by the emit.
 
-### plasma.store(c) : Boolean
+___notes___
+
+* The emit operation awaits any reactions in sequence based on their registration via `plasma.on` 
+* The returned results are not ordered
+
+### plasma.store(c) : Promise<Array>
 
 Does the same as `plasma.emit` but also triggers any
 reactions registered in the future using `plasma.on`
 
+This method actually stored inmemory the `c` chemical referenced within the plasma as `storedChemical`.
+
 ___returns___
 
-* `true` - *only* when chemical has been aggregated
+* `Promise<Array>` - returns a Promise which resolves to Array of Objects 
+been the result of any reactions been triggered by the emit.
 
-### plasma.storeAndOverride(c) : Boolean
+### plasma.storeAndOverride(c) : Promise<Array>
 
 Does the same as `plasma.emit` but also triggers any
 reactions registered in the future using `plasma.on`.
@@ -35,12 +44,16 @@ It overrides previously stored chemicals having the same chemical using `c.type`
 
 ___returns___
 
-* `true` - *only* when chemical has been aggregated
+* `Promise<Array>` - returns a Promise which resolves to Array of Objects 
+been the result of any reactions been triggered by the emit.
 
 ### plasma.has(pattern) : boolean
+
+Checks synchronously for stored chemicals by given `pattern`.
+
 ___returns___
 
-Checks synchronously for stored chemicals by given pattern.
+* `Boolean` - returns `true` when plasma contains a stored chemical matching given `pattern`
 
 ### plasma.get(pattern) : Chemical
 
@@ -61,6 +74,22 @@ ___arguments___
 * `c` - `Object` Chemical matching `pattern`
 * `callback` - *optional* callback function used for feedback
 * `context` - *optional* context to be used for calling the function
+
+___example___
+
+```
+plasma.on({type: 'myChemical', kind: 'v1'}, async function (c) {
+  console.log(c) // {type: 'myChemical', kind: 'v1', ...}
+  await operation()
+  return result
+})
+
+let result = await plasma.emit({
+  type: 'myChemical',
+  kind: 'v1',
+  property: 'value'
+})
+```
 
 ### plasma.once(pattern, function (c [, callback]){} [, context])
 
@@ -94,6 +123,15 @@ ___arguments___
 * `function` *optional* required only when `pattern` is String, Array or Object. This should be the exact function used for `plasma.on` or `plasma.once`
 * `context` *optional* used to scope removing of chemical reactions within context
 
+### plasma.off(function, context)
+
+Unregisters chemical reaction functions, the opposite of `plasma.on` or `plasma.once`.
+
+___arguments___
+
+* `function` this should be the exact function used for `plasma.on` or `plasma.once`
+* `context` *optional* used to scope removing of chemical reactions within context
+
 ### plasma.trash(c)
 
 Removes previously stored chemical via `plasma.store`. It does removal by reference and won't throw exception if given chemical is not found in plasma's store.
@@ -114,18 +152,6 @@ Stops invoking given function previously used for `plasma.pipe`
 
 Current implementation of organic plasma interface has the following addon features designed for ease in daily development process.
 
-### chemical aggregation
-
-```
-plasma.on('c1', function reaction1 () {
-  return true
-})
-plasma.on('c1', function reaction2 () {
-  // won't be reached, reaction1 aggregated the chemical
-})
-console.log(plasma.emit('c1')) // === true
-```
-
 ### optional usage of arguments
 
 Invoking **either**:
@@ -140,6 +166,9 @@ triggers **all** the following:
 
 ### feedback support
 
+
+#### using callback
+
 ```
 plasma.on('c1', function reaction1 (c, callback) {
   callback(c)
@@ -147,6 +176,17 @@ plasma.on('c1', function reaction1 (c, callback) {
 plasma.emit('c1', function callback (c) {
   // c.type === 'c1'
 })
+```
+
+#### using async/await
+
+```
+plasma.on('c1', async function reaction1 (c) {
+  let result
+  return result
+})
+let result = await plasma.emit('c1')
+console.log(result)
 ```
 
 ### custom pattern <-> chemical match algorithms
@@ -164,38 +204,6 @@ var instance = new Class1()
 plasma.emit(instance)
 ```
 
-### notification of missing listeners/handlers for a chemical
-
-When emitting a chemical (via the `.emit` method) which has no registered handlers (via the `.on`/`.once` methods) a warning chemical will be emitted (by default its type is `plasma/missingHandler`)
-
-
-* The missing handlers warning chemical will not be emitted when storing chemicals.
-* The type of the missing handlers warning chemical can be customized when instantiating the plasma
-* by default this feature is disabled unless `missingHandlersChemical` value is provided
-
-```
-var instance  = new Plasma({
-  missingHandlersChemical: 'plasma/missingHandler'
-})
-
-instance.on("plasma/missingHandler", function(c){
-  ...
-  expect(c).toBe({
-    type: 'plasma/missingHandler',
-    chemical: {
-      type: chemicalWithNoHandler,
-      someData: true
-    }
-  })
-  ...
-})
-
-instance.emit({
-  type: "chemicalWithNoHandler",
-  someData: true
-})
-```
-
 ### throw on missing listeners/handlers for a chemical
 
 When emitting a chemical (via the `.emit` method) which has no registered handlers (via the `.on`/`.once` methods) an Error will be thrown
@@ -210,26 +218,3 @@ var instance  = new Plasma({
 
 instance.emit("chemicalWithNoHandler") // throws Error
 ```
-
-### emit and collect results
-
-To wait all feedbacks provided by organelles upon a single chemical emit
-use `emitAndCollect` method
-
-```
-var instance  = new Plasma()
-instance.on('c1', function reaction1 (c, callback) {
-  callback(null, 1)
-})
-instance.on('c1', function reaction2 (c, callback) {
-  callback(null, 2)
-})
-instance.emitAndCollect('c1', function (results) {
-  console.log(results) // [{err: null, data: 1}, {err: null, data: 2}]
-})
-```
-
-___notes___
-
-* order of results is not guaranteed
-* all reactions must use and invoke the callback to respect the control flow
