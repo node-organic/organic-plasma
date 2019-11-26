@@ -214,6 +214,10 @@ module.exports.prototype.emit = async function (chemical, callback) {
     }
   }
 
-  callback && callback(null, collectedResults)
+  try {
+    callback && callback(null, collectedResults)
+  } catch (e) {
+    throw new Error('failed to execute provided callback to plasma.emit with chemical.type: ' + chemical.type + ' e.stack:' + e.stack)
+  }
   return collectedResults
 }

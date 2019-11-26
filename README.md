@@ -1,4 +1,4 @@
-# Plasma v2.0.0
+# Plasma v3
 
 Implementation of [node-organic/Plasma v1.0.0](https://github.com/VarnaLab/node-organic/blob/master/docs/Plasma.md).
 

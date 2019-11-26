@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [major.minor.patch] - YYYY-MM-DD
+
+### Changed
+### Added
+### Removed
+
+## 3.0.1 - 2019-11-26
+
+### Changed
+
+* `plasma.emit(c, callback)` re-throws meaningful errors from failed callback method invokes including its stack frame
+* `README.md` shows the latest plasma version
+
 ## [3.0.0] - [2019-10-21]
 
 **breaking changes introduced**
