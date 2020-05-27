@@ -2,11 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [major.minor.patch] - YYYY-MM-DD
+## 4.0.0 - 2020-05-27
 
 ### Changed
-### Added
-### Removed
+
+* `pasma.emit` doesn't create a Promise wrapper and throws Array of Errors
+* updated to `jasmine` as test runner and fixed tests
 
 ## 3.0.1 - 2019-11-26
 
@@ -126,3 +127,9 @@ Upgrade path requires `organic-plasma-feedback` decoration to be applied on v1.0
 ## [0.0.7] - 2015-06-11
 ### Fixed
 - plasma.once
+
+## [major.minor.patch] - YYYY-MM-DD
+
+### Changed
+### Added
+### Removed

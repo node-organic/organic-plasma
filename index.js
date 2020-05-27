@@ -165,11 +165,12 @@ module.exports.prototype.unpipe = function (dest) {
 }
 
 module.exports.prototype.notifySubscribers = function (chemical) {
-  for(var i = 0; i<this.remoteSubscribers.length; i++) {
-    var s = this.remoteSubscribers[i]
-    var r = {}
-    for (var key in chemical)
+  for(let i = 0; i<this.remoteSubscribers.length; i++) {
+    let s = this.remoteSubscribers[i]
+    let r = {}
+    for (let key in chemical) {
       r[key] = chemical[key]
+    }
     s.target(chemical)
   }
 }
@@ -181,11 +182,12 @@ module.exports.prototype.emit = async function (chemical, callback) {
 
   this.notifySubscribers(chemical)
 
-  var listenersCount = this.listeners.length
-  var hasListeners = false
+  let listenersCount = this.listeners.length
+  let hasListeners = false
   let collectedResults = []
-  for(var i = 0; i<listenersCount && i<this.listeners.length; i++) {
-    var listener = this.listeners[i]
+  let collectedErrors = []
+  for(let i = 0; i<listenersCount && i<this.listeners.length; i++) {
+    let listener = this.listeners[i]
     if(this.utils.deepEqual(listener.pattern, chemical)) {
       hasListeners = true
       if(listener.once) {
@@ -193,31 +195,35 @@ module.exports.prototype.emit = async function (chemical, callback) {
         i -= 1;
         listenersCount -= 1;
       }
-      let result
       if (listener.handler.length === 2) {
         // handler is in accepting arguments: chemical & callback
-        try {
-          result = await (new Promise((resolve, reject) => {
-            listener.handler.call(listener.context, chemical, (err, data) => {
-              if (err) return reject(err)
-              resolve(data)
-            })
-          }))
-        } catch (err) {
-          if (callback) return callback(err)
-          throw err
-        }
+        listener.handler.call(listener.context, chemical, (err, data) => {
+          if (err) {
+            collectedErrors[i] = err
+          } else {
+            collectedResults[i] = data
+          }
+        })
       } else {
-        result = await listener.handler.call(listener.context, chemical)
+        try {
+          let result = await listener.handler.call(listener.context, chemical)
+          collectedResults[i] = result
+        } catch (e) {
+          collectedErrors[i] = e
+        }
       }
-      collectedResults.push(result)
     }
   }
 
-  try {
-    callback && callback(null, collectedResults)
-  } catch (e) {
-    throw new Error('failed to execute provided callback to plasma.emit with chemical.type: ' + chemical.type + ' e.stack:' + e.stack)
+  if (callback) {
+    if (collectedErrors.length > 0) {
+      return callback(collectedErrors)
+    } else {
+      return callback(null, collectedResults)
+    }
+  }
+  if (collectedErrors.length > 0) {
+    throw collectedErrors
   }
   return collectedResults
 }

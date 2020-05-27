@@ -1,4 +1,4 @@
-# Plasma v3
+# Plasma v4
 
 Implementation of [node-organic/Plasma v1.0.0](https://github.com/VarnaLab/node-organic/blob/master/docs/Plasma.md).
 
@@ -16,12 +16,17 @@ ___arguments___
 ___returns___
 
 * `Promise<Array>` - returns a Promise which resolves to Array of Objects 
-been the result of any reactions been triggered by the emit.
+been the result of any reactions triggered by the emit.
+
+___throws___
+
+* `Array<Error>` - throws an Array of Error objects
 
 ___notes___
 
-* The emit operation awaits any reactions in sequence based on their registration via `plasma.on` 
-* The returned results are not ordered
+* Awaits any reactions in sequence based on their registration via `plasma.on` 
+* Halts when a reaction throws
+* Doesn't halt when a reaction returns error via callback signature
 
 ### plasma.store(c) : Promise<Array>
 

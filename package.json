@@ -4,7 +4,7 @@
   "description": "Implementation of node-organic/Plasma v1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine-node ./tests",
+    "test": "jasmine",
     "release-patch": "npm run test && npm version patch && npm publish && git push --tags && git push origin master",
     "release-minor": "npm run test && npm version minor && npm publish && git push --tags && git push origin master",
     "release-major": "npm run test && npm version major && npm publish && git push --tags && git push origin master"
@@ -23,7 +23,7 @@
     "organic": "^1.0.0"
   },
   "devDependencies": {
-    "jasmine-node": "^3.0.0"
+    "jasmine": "^3.5.0"
   },
   "engines": {
     "node": "^10.16.3"
