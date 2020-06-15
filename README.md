@@ -28,6 +28,15 @@ ___notes___
 * Halts when a reaction throws
 * Doesn't halt when a reaction returns error via callback signature
 
+### plasma.emitOnce(c) : Promise
+
+Does the same as `plasma.emit` but triggers only the first matched
+reaction.
+
+___returns___
+
+* `Promise` - returns a Promise which resolves to the result of the reaction matched by the emit pattern.
+
 ### plasma.store(c) : Promise<Array>
 
 Does the same as `plasma.emit` but also triggers any

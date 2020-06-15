@@ -175,6 +175,46 @@ module.exports.prototype.notifySubscribers = function (chemical) {
   }
 }
 
+module.exports.prototype.emitOnce = async function (chemical) {
+  if (typeof chemical == "string") {
+    chemical = { type: chemical }
+  }
+
+  this.notifySubscribers(chemical)
+
+  let listenersCount = this.listeners.length
+  let collectedResult = null
+  let collectedError = null
+  for (let i = 0; i < listenersCount && i < this.listeners.length; i++) {
+    let listener = this.listeners[i]
+    if (this.utils.deepEqual(listener.pattern, chemical)) {
+      if (listener.once) {
+        this.listeners.splice(i, 1);
+        i -= 1;
+        listenersCount -= 1;
+      }
+
+      try {
+        if (listener.handler.length === 2) {
+          return new Promise((resolve, reject) => {
+            listener.handler.call(listener.context, chemical, (err, data) => {
+              if (err) {
+                reject(err)
+              } else {
+                resolve(data)
+              }
+            })
+          })
+        } else {
+          return listener.handler.call(listener.context, chemical)
+        }
+      } catch (e) {
+        return e
+      }
+    }
+  }
+}
+
 module.exports.prototype.emit = async function (chemical, callback) {
   if (typeof chemical == "string") {
     chemical = {type: chemical}
@@ -183,34 +223,37 @@ module.exports.prototype.emit = async function (chemical, callback) {
   this.notifySubscribers(chemical)
 
   let listenersCount = this.listeners.length
-  let hasListeners = false
   let collectedResults = []
   let collectedErrors = []
+  let matchedCount = -1
   for(let i = 0; i<listenersCount && i<this.listeners.length; i++) {
     let listener = this.listeners[i]
     if(this.utils.deepEqual(listener.pattern, chemical)) {
-      hasListeners = true
+      matchedCount += 1
       if(listener.once) {
         this.listeners.splice(i, 1);
         i -= 1;
         listenersCount -= 1;
       }
-      if (listener.handler.length === 2) {
-        // handler is in accepting arguments: chemical & callback
-        listener.handler.call(listener.context, chemical, (err, data) => {
-          if (err) {
-            collectedErrors[i] = err
-          } else {
-            collectedResults[i] = data
-          }
-        })
-      } else {
-        try {
-          let result = await listener.handler.call(listener.context, chemical)
-          collectedResults[i] = result
-        } catch (e) {
-          collectedErrors[i] = e
+      try {
+        let result
+        if (listener.handler.length === 2) {
+          result = await (new Promise(function (resolve, reject) {
+            // handler is in accepting arguments: chemical & callback
+            listener.handler.call(listener.context, chemical, (err, data) => {
+              if (err) {
+                reject(err)
+              } else {
+                resolve(data)
+              }
+            })
+          }))
+        } else {
+          result = await listener.handler.call(listener.context, chemical)
         }
+        collectedResults[matchedCount] = result
+      } catch (e) {
+        collectedErrors[matchedCount] = e
       }
     }
   }

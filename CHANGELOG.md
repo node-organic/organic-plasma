@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 4.1.0 - 2020-06-15
+
+### Fixed
+
+* `plasma.emit` - returns properly array of promised results for matched reactions
+
+### Added
+
+* `plasma.emitOnce` - hits the first matched reaction and stops the emit
+
 ## 4.0.0 - 2020-05-27
 
 ### Changed
